@@ -1,0 +1,3 @@
+title,location,remote,salary_min,salary_max,currency,description,url
+Backend Engineer,Berlin,true,70000,100000,EUR,Build APIs,https://example.com/job
+Product Designer,Remote,true,60000,90000,USD,Design UX,https://example.com/design
