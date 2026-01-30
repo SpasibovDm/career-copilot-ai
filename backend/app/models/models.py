@@ -4,12 +4,14 @@ from sqlalchemy import (
     JSON,
     Boolean,
     Column,
+    DateTime,
     Enum,
     Float,
     ForeignKey,
     String,
     Text,
     UniqueConstraint,
+    func,
 )
 from sqlalchemy.orm import relationship
 
@@ -35,6 +37,14 @@ class VacancySource(str, enum.Enum):
     api = "api"
 
 
+class ApplicationStatus(str, enum.Enum):
+    saved = "saved"
+    applied = "applied"
+    interview = "interview"
+    offer = "offer"
+    rejected = "rejected"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -46,6 +56,7 @@ class User(Base):
     documents = relationship("Document", back_populates="user")
     matches = relationship("Match", back_populates="user")
     generated_packages = relationship("GeneratedPackage", back_populates="user")
+    applications = relationship("Application", back_populates="user")
 
 
 class Profile(Base):
@@ -54,6 +65,7 @@ class Profile(Base):
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     user_id = Column(GUID(), ForeignKey("users.id"), unique=True, nullable=False)
     full_name = Column(String(255), nullable=True)
+    location = Column(String(255), nullable=True)
     desired_roles = Column(JSON, nullable=True)
     languages = Column(JSON, nullable=True)
     salary_min = Column(Float, nullable=True)
@@ -93,6 +105,7 @@ class Vacancy(Base):
 
     matches = relationship("Match", back_populates="vacancy")
     generated_packages = relationship("GeneratedPackage", back_populates="vacancy")
+    applications = relationship("Application", back_populates="vacancy")
 
 
 class Match(Base):
@@ -105,9 +118,27 @@ class Match(Base):
     score = Column(Float, nullable=False)
     explanation = Column(Text, nullable=True)
     missing_skills = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     user = relationship("User", back_populates="matches")
     vacancy = relationship("Vacancy", back_populates="matches")
+
+
+class Application(Base):
+    __tablename__ = "applications"
+    __table_args__ = (
+        UniqueConstraint("user_id", "vacancy_id", name="uq_application_user_vacancy"),
+    )
+
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id"), nullable=False)
+    vacancy_id = Column(GUID(), ForeignKey("vacancies.id"), nullable=False)
+    status = Column(Enum(ApplicationStatus), nullable=False, default=ApplicationStatus.saved)
+    notes = Column(Text, nullable=True)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    user = relationship("User", back_populates="applications")
+    vacancy = relationship("Vacancy", back_populates="applications")
 
 
 class GeneratedPackage(Base):

@@ -55,6 +55,7 @@ services:
       S3_ACCESS_KEY: minio
       S3_SECRET_KEY: minio123
       S3_BUCKET: documents
+      CORS_ALLOW_ORIGINS: http://localhost:3000
     ports:
       - "8000:8000"
     command: >
@@ -75,6 +76,17 @@ services:
       S3_SECRET_KEY: minio123
       S3_BUCKET: documents
     command: python -m app.workers.worker
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
 
 volumes:
   postgres_data:
