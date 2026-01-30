@@ -53,6 +53,10 @@ export interface GeneratedPackage {
   export_pdf_s3_key?: string | null;
 }
 
+export interface ExportPdfResponse {
+  download_url: string;
+}
+
 export interface Application {
   id: string;
   vacancy_id: string;

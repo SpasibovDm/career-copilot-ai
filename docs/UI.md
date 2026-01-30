@@ -13,7 +13,7 @@
 | `/vacancies/[id]` | Vacancy details view. |
 | `/matches` | Match list with missing skills + generate package action. |
 | `/documents` | Uploaded documents list with extracted JSON preview. |
-| `/packages/[id]` | Generated package viewer with tabs + download. |
+| `/packages/[id]` | Generated package viewer with tabs + download + PDF export templates. |
 
 ## Key components
 
@@ -29,7 +29,7 @@
 - Vacancies: `/vacancies`, `/vacancies/import/csv`
 - Matching: `/matching/run`
 - Matches: `/me/matches`
-- Packages: `/me/generated/{package_id}`
+- Packages: `/me/generated/{package_id}`, `/me/generated/{package_id}/export/pdf`
 - Stats: `/me/stats`
 - Applications: `/me/applications`, `/me/applications/{vacancy_id}`
 

@@ -1,3 +1,5 @@
+from io import BytesIO
+
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from redis import Redis
 from rq import Queue
@@ -23,13 +25,16 @@ from app.schemas.schemas import (
     ApplicationOut,
     ApplicationUpdate,
     DocumentOut,
+    ExportPdfRequest,
+    ExportPdfResponse,
     GeneratedPackageOut,
     MatchOut,
     ProfileIn,
     ProfileOut,
     StatsOut,
 )
-from app.services.storage import upload_file
+from app.services.pdf import render_package_pdf
+from app.services.storage import generate_download_url, upload_file
 from app.workers import tasks
 
 router = APIRouter(prefix="/me", tags=["me"])
@@ -199,3 +204,26 @@ def get_generated_package(
     if not package:
         raise HTTPException(status_code=404, detail="Generated package not found")
     return package
+
+
+@router.post("/generated/{package_id}/export/pdf", response_model=ExportPdfResponse)
+def export_generated_package_pdf(
+    package_id: str,
+    payload: ExportPdfRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    package = (
+        db.query(GeneratedPackage)
+        .filter(GeneratedPackage.id == package_id, GeneratedPackage.user_id == current_user.id)
+        .first()
+    )
+    if not package:
+        raise HTTPException(status_code=404, detail="Generated package not found")
+    profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
+    pdf_bytes = render_package_pdf(package, template=payload.template, profile=profile)
+    filename = f"package-{package.id}-{payload.template}.pdf"
+    key = upload_file(BytesIO(pdf_bytes), filename)
+    package.export_pdf_s3_key = key
+    db.commit()
+    return ExportPdfResponse(download_url=generate_download_url(key))

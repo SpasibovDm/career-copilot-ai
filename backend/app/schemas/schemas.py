@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -102,6 +102,14 @@ class GeneratedPackageOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ExportPdfRequest(BaseModel):
+    template: Literal["minimal", "modern", "classic"] = "modern"
+
+
+class ExportPdfResponse(BaseModel):
+    download_url: str
 
 
 class ApplicationUpdate(BaseModel):
