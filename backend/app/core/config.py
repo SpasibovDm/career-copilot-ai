@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     s3_secret_key: str = "minio123"
     s3_bucket: str = "documents"
     s3_region: str = "us-east-1"
+    cors_allow_origins: str = "http://localhost:3000"
 
     class Config:
         env_file = ".env"

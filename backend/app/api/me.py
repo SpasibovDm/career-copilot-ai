@@ -1,13 +1,34 @@
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from redis import Redis
 from rq import Queue
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.deps import get_current_user
-from app.models.models import Document, DocumentKind, GeneratedPackage, Match, Profile, User
-from app.schemas.schemas import DocumentOut, GeneratedPackageOut, MatchOut, ProfileIn, ProfileOut
+from app.models.models import (
+    Application,
+    ApplicationStatus,
+    Document,
+    DocumentKind,
+    DocumentStatus,
+    GeneratedPackage,
+    Match,
+    Profile,
+    User,
+    Vacancy,
+)
+from app.schemas.schemas import (
+    ApplicationOut,
+    ApplicationUpdate,
+    DocumentOut,
+    GeneratedPackageOut,
+    MatchOut,
+    ProfileIn,
+    ProfileOut,
+    StatsOut,
+)
 from app.services.storage import upload_file
 from app.workers import tasks
 
@@ -94,6 +115,74 @@ def list_matches(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     return db.query(Match).filter(Match.user_id == current_user.id).all()
+
+
+@router.get("/applications", response_model=list[ApplicationOut])
+def list_applications(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    return db.query(Application).filter(Application.user_id == current_user.id).all()
+
+
+@router.put("/applications/{vacancy_id}", response_model=ApplicationOut)
+def update_application(
+    vacancy_id: str,
+    payload: ApplicationUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    vacancy = db.query(Vacancy).filter(Vacancy.id == vacancy_id).first()
+    if not vacancy:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    application = (
+        db.query(Application)
+        .filter(Application.user_id == current_user.id, Application.vacancy_id == vacancy_id)
+        .first()
+    )
+    if not application:
+        application = Application(user_id=current_user.id, vacancy_id=vacancy_id)
+        db.add(application)
+    if payload.status:
+        application.status = payload.status
+    if payload.notes is not None:
+        application.notes = payload.notes
+    db.commit()
+    db.refresh(application)
+    return application
+
+
+@router.get("/stats", response_model=StatsOut)
+def get_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    vacancies_count = db.query(Vacancy).count()
+    matches_count = db.query(Match).filter(Match.user_id == current_user.id).count()
+    documents_count = db.query(Document).filter(Document.user_id == current_user.id).count()
+    documents_parsed_count = (
+        db.query(Document)
+        .filter(Document.user_id == current_user.id, Document.status == DocumentStatus.processed)
+        .count()
+    )
+    applications = (
+        db.query(Application.status, func.count(Application.id))
+        .filter(Application.user_id == current_user.id)
+        .group_by(Application.status)
+        .all()
+    )
+    applications_by_status = {status: count for status, count in applications}
+    for status in ApplicationStatus:
+        applications_by_status.setdefault(status, 0)
+    last_matching_run_at = (
+        db.query(func.max(Match.created_at))
+        .filter(Match.user_id == current_user.id)
+        .scalar()
+    )
+    return StatsOut(
+        vacancies_count=vacancies_count,
+        matches_count=matches_count,
+        documents_count=documents_count,
+        documents_parsed_count=documents_parsed_count,
+        applications_by_status=applications_by_status,
+        last_matching_run_at=last_matching_run_at,
+    )
 
 
 @router.get("/generated/{package_id}", response_model=GeneratedPackageOut)

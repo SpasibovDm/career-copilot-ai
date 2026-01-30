@@ -15,6 +15,28 @@ Docker compose up -d --build
 
 The API will be available at `http://localhost:8000`.
 
+## UI Local Dev
+
+```bash
+cd infra
+docker compose up -d --build
+```
+
+Then open `http://localhost:3000` for the Career Copilot Portal. The frontend reads
+`NEXT_PUBLIC_API_URL` (default `http://localhost:8000`) for API calls.
+
+### UI Flow (happy path)
+1. Register or login from `/register` or `/login`.
+2. Complete onboarding (`/onboarding`) with profile, documents, CSV import, and matching.
+3. Visit `/dashboard` for KPIs + charts.
+4. Browse `/vacancies` and `/matches` to generate packages.
+5. Open `/packages/{id}` once a generated package is created.
+
+### UI Screenshots (placeholders)
+- Landing page: `docs/screenshots/landing.png`
+- Dashboard: `docs/screenshots/dashboard.png`
+- Onboarding wizard: `docs/screenshots/onboarding.png`
+
 ## End-to-End cURL Flow
 
 ```bash
@@ -69,3 +91,4 @@ pytest
 See:
 - `docs/ARCHITECTURE.md`
 - `docs/OPENAPI.md`
+- `docs/UI.md`

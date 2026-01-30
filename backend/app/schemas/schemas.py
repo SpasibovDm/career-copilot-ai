@@ -1,9 +1,10 @@
 import uuid
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
-from app.models.models import DocumentKind, DocumentStatus, VacancySource
+from app.models.models import ApplicationStatus, DocumentKind, DocumentStatus, VacancySource
 
 
 class TokenPair(BaseModel):
@@ -36,6 +37,7 @@ class UserOut(BaseModel):
 
 class ProfileIn(BaseModel):
     full_name: Optional[str] = None
+    location: Optional[str] = None
     desired_roles: Optional[List[str]] = None
     languages: Optional[Dict[str, Any]] = None
     salary_min: Optional[float] = None
@@ -100,3 +102,28 @@ class GeneratedPackageOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ApplicationUpdate(BaseModel):
+    status: Optional[ApplicationStatus] = None
+    notes: Optional[str] = None
+
+
+class ApplicationOut(BaseModel):
+    id: uuid.UUID
+    vacancy_id: uuid.UUID
+    status: ApplicationStatus
+    notes: Optional[str] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+
+
+class StatsOut(BaseModel):
+    vacancies_count: int
+    matches_count: int
+    documents_count: int
+    documents_parsed_count: int
+    applications_by_status: Dict[ApplicationStatus, int]
+    last_matching_run_at: Optional[datetime] = None
