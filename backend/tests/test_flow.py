@@ -96,5 +96,14 @@ def test_end_to_end_flow():
         assert package is not None
         get_package = client.get(f"/me/generated/{package.id}", headers=headers)
         assert get_package.status_code == 200
+        export_resp = client.post(
+            f"/me/generated/{package.id}/export/pdf",
+            headers=headers,
+            json={"template": "modern"},
+        )
+        assert export_resp.status_code == 200
+        data = export_resp.json()
+        assert "download_url" in data
+        assert os.path.exists(data["download_url"])
     finally:
         db.close()

@@ -37,3 +37,22 @@ def upload_file(file_obj: BinaryIO, filename: str) -> str:
     )
     client.upload_fileobj(file_obj, settings.s3_bucket, key)
     return key
+
+
+def generate_download_url(key: str, expires_in: int = 3600) -> str:
+    if _use_local_storage():
+        return key
+
+    client = boto3.client(
+        "s3",
+        endpoint_url=settings.s3_endpoint_url,
+        aws_access_key_id=settings.s3_access_key,
+        aws_secret_access_key=settings.s3_secret_key,
+        region_name=settings.s3_region,
+        config=Config(signature_version="s3v4"),
+    )
+    return client.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": settings.s3_bucket, "Key": key},
+        ExpiresIn=expires_in,
+    )

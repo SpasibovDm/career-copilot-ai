@@ -1,9 +1,10 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { apiFetch } from "@/lib/api";
-import { GeneratedPackage } from "@/types/api";
+import { ExportPdfResponse, GeneratedPackage } from "@/types/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -23,11 +24,25 @@ function downloadText(filename: string, content: string) {
 export default function PackagePage() {
   const params = useParams();
   const packageId = params?.id as string;
+  const [template, setTemplate] = useState<"minimal" | "modern" | "classic">("modern");
 
   const query = useQuery({
     queryKey: ["package", packageId],
     queryFn: () => apiFetch<GeneratedPackage>(`/me/generated/${packageId}`),
     enabled: Boolean(packageId),
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: () =>
+      apiFetch<ExportPdfResponse>(`/me/generated/${packageId}/export/pdf`, {
+        method: "POST",
+        body: JSON.stringify({ template }),
+      }),
+    onSuccess: (data) => {
+      window.open(data.download_url, "_blank");
+      toast.success("PDF export ready");
+    },
+    onError: () => toast.error("Failed to export PDF"),
   });
 
   if (query.isLoading) {
@@ -46,6 +61,26 @@ export default function PackagePage() {
         <CardTitle>Generated package</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
+          <div>
+            <div className="text-sm font-medium">Export PDF</div>
+            <div className="text-xs text-muted-foreground">Choose a template for a polished document.</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              className="h-9 rounded-md border bg-background px-3 text-sm"
+              value={template}
+              onChange={(event) => setTemplate(event.target.value as "minimal" | "modern" | "classic")}
+            >
+              <option value="minimal">Minimal</option>
+              <option value="modern">Modern</option>
+              <option value="classic">Classic</option>
+            </select>
+            <Button size="sm" onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
+              {exportMutation.isPending ? "Exporting..." : "Download PDF"}
+            </Button>
+          </div>
+        </div>
         <Tabs defaultValue="cv">
           <TabsList>
             <TabsTrigger value="cv">Tailored CV</TabsTrigger>
