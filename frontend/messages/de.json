@@ -1,0 +1,312 @@
+{
+  "common": {
+    "brand": "Career Copilot",
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "getStarted": "Loslegen",
+    "toggleTheme": "Theme wechseln",
+    "yes": "Ja",
+    "no": "Nein",
+    "notAvailable": "-",
+    "percent": "{value}%"
+  },
+  "language": {
+    "label": "Sprache",
+    "locales": {
+      "de": "DE",
+      "en": "EN",
+      "ru": "RU"
+    }
+  },
+  "footer": {
+    "tagline": "Career Copilot Portal — automatisiere deine Jobsuche",
+    "locale": "Aktuelle Sprache: {locale}"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "onboarding": "Onboarding",
+    "vacancies": "Stellen",
+    "matches": "Matches",
+    "documents": "Dokumente"
+  },
+  "landing": {
+    "badge": "Produktionsreife Jobsuche-Automatisierung",
+    "title": "Starte deine Job-Suchzentrale mit KI-gestützten Insights.",
+    "subtitle": "Career Copilot Portal orchestriert deine Stellen, Dokumente und Matching-Pipelines in einem modernen Workspace.",
+    "primaryCta": "Onboarding starten",
+    "secondaryCta": "Demo-Dashboard ansehen",
+    "preview": {
+      "screenshot": "Screenshot-Platzhalter",
+      "automation": "Automationsvorschau"
+    },
+    "features": {
+      "smartMatching": {
+        "title": "Smartes Matching",
+        "description": "Bewerte jede Stelle gegen dein Profil und hebe fehlende Skills hervor."
+      },
+      "documentIntelligence": {
+        "title": "Dokumenten-Intelligenz",
+        "description": "Lade Lebensläufe und Zertifikate einmal hoch und nutze sie überall."
+      },
+      "automatedOutreach": {
+        "title": "Automatisierte Ansprache",
+        "description": "Erstelle maßgeschneiderte CVs, Anschreiben und HR-Nachrichten in Minuten."
+      }
+    },
+    "stats": {
+      "vacanciesTracked": "Getrackte Stellen",
+      "vacanciesTrackedValue": "12k+",
+      "automationsRun": "Ausgeführte Automationen",
+      "automationsRunValue": "4,8k",
+      "careerOutcomes": "Karriere-Ergebnisse",
+      "careerOutcomesValue": "93%"
+    },
+    "cta": {
+      "title": "Bereit, deine Suche zu beschleunigen?",
+      "subtitle": "Verbinde deine Dokumente, importiere Stellen und lass die KI den Rest übernehmen.",
+      "button": "Onboarding starten"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Willkommen zurück",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "du@beispiel.de",
+      "passwordLabel": "Passwort",
+      "submit": "Anmelden",
+      "footerPrompt": "Neu hier?",
+      "footerLink": "Konto erstellen",
+      "toastSuccess": "Willkommen zurück!",
+      "toastError": "Anmeldung fehlgeschlagen. Prüfe deine Zugangsdaten."
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "du@beispiel.de",
+      "passwordLabel": "Passwort",
+      "submit": "Konto erstellen",
+      "footerPrompt": "Schon ein Konto?",
+      "footerLink": "Anmelden",
+      "toastSuccess": "Konto erstellt!",
+      "toastError": "Registrierung fehlgeschlagen. Nutze eine andere E-Mail."
+    }
+  },
+  "validation": {
+    "email": "Gültige E-Mail-Adresse eingeben",
+    "passwordMin": "Passwort muss mindestens 8 Zeichen haben",
+    "name": "Bitte deinen Namen eingeben",
+    "roles": "Mindestens eine Rolle angeben"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Aktuelle Performance-Signale entlang deiner Pipeline.",
+    "runOnboarding": "Onboarding ausführen",
+    "kpis": {
+      "totalVacancies": "Gesamtstellen",
+      "matchesGenerated": "Erstellte Matches",
+      "documentsParsed": "Verarbeitete Dokumente",
+      "lastMatchRun": "Letzter Matching-Lauf",
+      "notRunYet": "Noch nicht ausgeführt"
+    },
+    "charts": {
+      "matchDistribution": "Match-Score-Verteilung",
+      "salaryBands": "Gehaltsband-Übersicht",
+      "pipelineStatuses": "Pipeline-Status"
+    },
+    "status": {
+      "saved": "Gespeichert",
+      "applied": "Beworben",
+      "interview": "Interview",
+      "offer": "Angebot",
+      "rejected": "Abgelehnt"
+    },
+    "topMatches": {
+      "title": "Top-Matches",
+      "table": {
+        "vacancy": "Stelle",
+        "score": "Score",
+        "actions": "Aktionen",
+        "view": "Stelle ansehen"
+      },
+      "empty": "Noch keine Matches. Starte das Onboarding, um zu matchen."
+    }
+  },
+  "vacancies": {
+    "title": "Stellen",
+    "subtitle": "Suche und filtere deine importierten Rollen.",
+    "filters": {
+      "title": "Filter",
+      "search": "Suchbegriffe",
+      "location": "Ort",
+      "remote": "Remote (true/false)",
+      "salaryMin": "Mindestgehalt"
+    },
+    "list": {
+      "title": "Stellenliste",
+      "table": {
+        "title": "Titel",
+        "location": "Ort",
+        "remote": "Remote",
+        "salary": "Gehalt",
+        "details": "Details"
+      },
+      "empty": "Keine Stellen gefunden."
+    },
+    "pagination": {
+      "page": "Seite {page} von {total}",
+      "previous": "Zurück",
+      "next": "Weiter"
+    }
+  },
+  "vacancyDetail": {
+    "notFound": "Stelle nicht gefunden.",
+    "back": "← Zurück zu den Stellen",
+    "remoteFallback": "Remote",
+    "salaryLabel": "Gehalt:",
+    "sourceLabel": "Quelle:",
+    "viewPosting": "Stellenanzeige öffnen",
+    "sources": {
+      "manual": "Manuell",
+      "csv": "CSV-Import",
+      "api": "API"
+    }
+  },
+  "matches": {
+    "title": "Matches",
+    "subtitle": "Überprüfe Scores und erstelle Pakete.",
+    "list": {
+      "title": "Match-Liste",
+      "vacancyId": "Stellen-ID",
+      "generate": "Paket generieren",
+      "generating": "Generiere...",
+      "empty": "Noch keine Matches. Starte das Onboarding, um zu generieren."
+    },
+    "pagination": {
+      "page": "Seite {page} von {total}",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "toastSuccess": "Generierung eingereiht",
+    "toastError": "Generierung konnte nicht eingereiht werden"
+  },
+  "documents": {
+    "title": "Dokumente",
+    "subtitle": "Verfolge Verarbeitungsstatus und extrahierte Metadaten.",
+    "status": {
+      "processed": "Verarbeitet",
+      "pending": "Ausstehend",
+      "failed": "Fehlgeschlagen"
+    },
+    "kinds": {
+      "resume": "Lebenslauf",
+      "cover_letter": "Anschreiben",
+      "other": "Sonstiges"
+    },
+    "s3Key": "S3-Schlüssel: {key}",
+    "failure": "Verarbeitung fehlgeschlagen: {reason}",
+    "failureFallback": "Verarbeitung fehlgeschlagen",
+    "empty": "Noch keine Dokumente hochgeladen."
+  },
+  "onboarding": {
+    "title": "Onboarding-Assistent",
+    "subtitle": "Schließe die Schritte ab, um Matches und Pakete zu erzeugen.",
+    "steps": {
+      "profile": "Profil einrichten",
+      "documents": "Dokumente hochladen",
+      "import": "Stellen importieren",
+      "matching": "Matching starten"
+    },
+    "status": {
+      "processed": "Verarbeitet",
+      "pending": "Ausstehend",
+      "failed": "Fehlgeschlagen"
+    },
+    "step1": {
+      "title": "Schritt 1: Profil",
+      "fullName": "Vollständiger Name",
+      "location": "Ort",
+      "locationPlaceholder": "Berlin, Deutschland",
+      "roles": "Gewünschte Rollen",
+      "rolesPlaceholder": "Produktmanager, Datenanalyst",
+      "languages": "Sprachen (JSON)",
+      "languagesPlaceholder": "{\"Deutsch\": \"Muttersprache\"}",
+      "salaryMin": "Mindestgehalt",
+      "salaryMax": "Höchstgehalt",
+      "submit": "Speichern und fortfahren",
+      "saving": "Speichern..."
+    },
+    "step2": {
+      "title": "Schritt 2: Dokumente hochladen",
+      "kinds": {
+        "resume": "Lebenslauf",
+        "cover_letter": "Anschreiben",
+        "other": "Sonstiges"
+      },
+      "empty": "Noch keine Dokumente hochgeladen.",
+      "continue": "Weiter"
+    },
+    "step3": {
+      "title": "Schritt 3: Stellen per CSV importieren",
+      "sampleHeader": "title,location,remote,salary_min,salary_max,currency,description,url",
+      "back": "Zurück",
+      "continue": "Weiter"
+    },
+    "step4": {
+      "title": "Schritt 4: Matching starten",
+      "subtitle": "Starte die Matching-Pipeline, um deine Stellen zu bewerten.",
+      "run": "Matching starten",
+      "running": "Läuft...",
+      "latestMatches": "Neueste Matches",
+      "vacancyLabel": "Stelle {id}",
+      "scoreLabel": "Score {score}%",
+      "empty": "Noch keine Matches."
+    },
+    "toast": {
+      "profileUpdated": "Profil aktualisiert",
+      "documentUploaded": "Dokument hochgeladen",
+      "vacanciesImported": "Stellen importiert",
+      "matchingQueued": "Matching eingereiht"
+    },
+    "errors": {
+      "invalidLanguages": "Ungültiges JSON für Sprachen",
+      "profileSave": "Profil konnte nicht gespeichert werden",
+      "uploadFailed": "Upload fehlgeschlagen",
+      "importFailed": "Import fehlgeschlagen",
+      "matchingFailed": "Matching konnte nicht gestartet werden"
+    }
+  },
+  "packages": {
+    "title": "Generiertes Paket",
+    "notFound": "Paket nicht gefunden.",
+    "export": {
+      "title": "PDF exportieren",
+      "subtitle": "Wähle eine Vorlage für ein poliertes Dokument.",
+      "exporting": "Export wird erstellt...",
+      "download": "PDF herunterladen"
+    },
+    "templates": {
+      "minimal": "Minimal",
+      "modern": "Modern",
+      "classic": "Klassisch"
+    },
+    "tabs": {
+      "cv": "Maßgeschneiderter Lebenslauf",
+      "cover": "Anschreiben",
+      "hr": "HR-Nachricht"
+    },
+    "actions": {
+      "copy": "Kopieren",
+      "downloadTxt": "Als .txt herunterladen"
+    },
+    "files": {
+      "cv": "lebenslauf.txt",
+      "cover": "anschreiben.txt",
+      "hr": "hr-nachricht.txt"
+    },
+    "toast": {
+      "exportReady": "PDF-Export bereit",
+      "exportFailed": "PDF-Export fehlgeschlagen",
+      "copied": "In die Zwischenablage kopiert"
+    }
+  }
+}

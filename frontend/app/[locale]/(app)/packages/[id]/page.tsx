@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 function downloadText(filename: string, content: string) {
   const blob = new Blob([content], { type: "text/plain" });
@@ -25,6 +26,7 @@ export default function PackagePage() {
   const params = useParams();
   const packageId = params?.id as string;
   const [template, setTemplate] = useState<"minimal" | "modern" | "classic">("modern");
+  const t = useTranslations("packages");
 
   const query = useQuery({
     queryKey: ["package", packageId],
@@ -40,9 +42,9 @@ export default function PackagePage() {
       }),
     onSuccess: (data) => {
       window.open(data.download_url, "_blank");
-      toast.success("PDF export ready");
+      toast.success(t("toast.exportReady"));
     },
-    onError: () => toast.error("Failed to export PDF"),
+    onError: () => toast.error(t("toast.exportFailed")),
   });
 
   if (query.isLoading) {
@@ -50,7 +52,7 @@ export default function PackagePage() {
   }
 
   if (!query.data) {
-    return <div className="text-sm text-muted-foreground">Package not found.</div>;
+    return <div className="text-sm text-muted-foreground">{t("notFound")}</div>;
   }
 
   const pkg = query.data;
@@ -58,13 +60,13 @@ export default function PackagePage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Generated package</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
           <div>
-            <div className="text-sm font-medium">Export PDF</div>
-            <div className="text-xs text-muted-foreground">Choose a template for a polished document.</div>
+            <div className="text-sm font-medium">{t("export.title")}</div>
+            <div className="text-xs text-muted-foreground">{t("export.subtitle")}</div>
           </div>
           <div className="flex items-center gap-2">
             <select
@@ -72,20 +74,20 @@ export default function PackagePage() {
               value={template}
               onChange={(event) => setTemplate(event.target.value as "minimal" | "modern" | "classic")}
             >
-              <option value="minimal">Minimal</option>
-              <option value="modern">Modern</option>
-              <option value="classic">Classic</option>
+              <option value="minimal">{t("templates.minimal")}</option>
+              <option value="modern">{t("templates.modern")}</option>
+              <option value="classic">{t("templates.classic")}</option>
             </select>
             <Button size="sm" onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
-              {exportMutation.isPending ? "Exporting..." : "Download PDF"}
+              {exportMutation.isPending ? t("export.exporting") : t("export.download")}
             </Button>
           </div>
         </div>
         <Tabs defaultValue="cv">
           <TabsList>
-            <TabsTrigger value="cv">Tailored CV</TabsTrigger>
-            <TabsTrigger value="cover">Cover letter</TabsTrigger>
-            <TabsTrigger value="hr">HR message</TabsTrigger>
+            <TabsTrigger value="cv">{t("tabs.cv")}</TabsTrigger>
+            <TabsTrigger value="cover">{t("tabs.cover")}</TabsTrigger>
+            <TabsTrigger value="hr">{t("tabs.hr")}</TabsTrigger>
           </TabsList>
           <TabsContent value="cv">
             <pre className="whitespace-pre-wrap text-sm">{pkg.cv_text}</pre>
@@ -95,13 +97,13 @@ export default function PackagePage() {
                 variant="outline"
                 onClick={() => {
                   navigator.clipboard.writeText(pkg.cv_text);
-                  toast.success("Copied to clipboard");
+                  toast.success(t("toast.copied"));
                 }}
               >
-                Copy
+                {t("actions.copy")}
               </Button>
-              <Button size="sm" onClick={() => downloadText("tailored-cv.txt", pkg.cv_text)}>
-                Download .txt
+              <Button size="sm" onClick={() => downloadText(t("files.cv"), pkg.cv_text)}>
+                {t("actions.downloadTxt")}
               </Button>
             </div>
           </TabsContent>
@@ -113,13 +115,13 @@ export default function PackagePage() {
                 variant="outline"
                 onClick={() => {
                   navigator.clipboard.writeText(pkg.cover_letter_text);
-                  toast.success("Copied to clipboard");
+                  toast.success(t("toast.copied"));
                 }}
               >
-                Copy
+                {t("actions.copy")}
               </Button>
-              <Button size="sm" onClick={() => downloadText("cover-letter.txt", pkg.cover_letter_text)}>
-                Download .txt
+              <Button size="sm" onClick={() => downloadText(t("files.cover"), pkg.cover_letter_text)}>
+                {t("actions.downloadTxt")}
               </Button>
             </div>
           </TabsContent>
@@ -131,13 +133,13 @@ export default function PackagePage() {
                 variant="outline"
                 onClick={() => {
                   navigator.clipboard.writeText(pkg.hr_message_text);
-                  toast.success("Copied to clipboard");
+                  toast.success(t("toast.copied"));
                 }}
               >
-                Copy
+                {t("actions.copy")}
               </Button>
-              <Button size="sm" onClick={() => downloadText("hr-message.txt", pkg.hr_message_text)}>
-                Download .txt
+              <Button size="sm" onClick={() => downloadText(t("files.hr"), pkg.hr_message_text)}>
+                {t("actions.downloadTxt")}
               </Button>
             </div>
           </TabsContent>

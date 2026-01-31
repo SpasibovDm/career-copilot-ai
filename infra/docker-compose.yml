@@ -85,6 +85,8 @@ services:
       - backend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_DEFAULT_LOCALE: de
+      NEXT_PUBLIC_LOCALES: de,en,ru
     ports:
       - "3000:3000"
 

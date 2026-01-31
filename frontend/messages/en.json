@@ -1,0 +1,312 @@
+{
+  "common": {
+    "brand": "Career Copilot",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "getStarted": "Get started",
+    "toggleTheme": "Toggle theme",
+    "yes": "Yes",
+    "no": "No",
+    "notAvailable": "-",
+    "percent": "{value}%"
+  },
+  "language": {
+    "label": "Language",
+    "locales": {
+      "de": "DE",
+      "en": "EN",
+      "ru": "RU"
+    }
+  },
+  "footer": {
+    "tagline": "Career Copilot Portal — automate your job search",
+    "locale": "Current language: {locale}"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "onboarding": "Onboarding",
+    "vacancies": "Vacancies",
+    "matches": "Matches",
+    "documents": "Documents"
+  },
+  "landing": {
+    "badge": "Production-ready job search automation",
+    "title": "Launch your job search command center with AI-guided insights.",
+    "subtitle": "Career Copilot Portal orchestrates your vacancies, documents, and matching pipelines in one modern workspace.",
+    "primaryCta": "Start onboarding",
+    "secondaryCta": "View demo dashboard",
+    "preview": {
+      "screenshot": "Screenshot placeholder",
+      "automation": "Automation preview"
+    },
+    "features": {
+      "smartMatching": {
+        "title": "Smart Matching",
+        "description": "Score every vacancy against your profile and highlight missing skills."
+      },
+      "documentIntelligence": {
+        "title": "Document Intelligence",
+        "description": "Upload CVs and certifications once, then reuse them everywhere."
+      },
+      "automatedOutreach": {
+        "title": "Automated Outreach",
+        "description": "Generate tailored CVs, cover letters, and HR messages in minutes."
+      }
+    },
+    "stats": {
+      "vacanciesTracked": "Vacancies tracked",
+      "vacanciesTrackedValue": "12k+",
+      "automationsRun": "Automations run",
+      "automationsRunValue": "4.8k",
+      "careerOutcomes": "Career outcomes",
+      "careerOutcomesValue": "93%"
+    },
+    "cta": {
+      "title": "Ready to accelerate your search?",
+      "subtitle": "Connect your documents, import vacancies, and let AI do the rest.",
+      "button": "Launch onboarding"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "submit": "Sign in",
+      "footerPrompt": "New here?",
+      "footerLink": "Create an account",
+      "toastSuccess": "Welcome back!",
+      "toastError": "Unable to sign in. Check your credentials."
+    },
+    "register": {
+      "title": "Create your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "submit": "Create account",
+      "footerPrompt": "Already have an account?",
+      "footerLink": "Sign in",
+      "toastSuccess": "Account created!",
+      "toastError": "Unable to register. Try a different email."
+    }
+  },
+  "validation": {
+    "email": "Enter a valid email address",
+    "passwordMin": "Password must be at least 8 characters",
+    "name": "Please enter your name",
+    "roles": "Add at least one role"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Latest performance signals across your pipeline.",
+    "runOnboarding": "Run onboarding",
+    "kpis": {
+      "totalVacancies": "Total vacancies",
+      "matchesGenerated": "Matches generated",
+      "documentsParsed": "Documents parsed",
+      "lastMatchRun": "Last match run",
+      "notRunYet": "Not run yet"
+    },
+    "charts": {
+      "matchDistribution": "Match score distribution",
+      "salaryBands": "Salary bands snapshot",
+      "pipelineStatuses": "Pipeline statuses"
+    },
+    "status": {
+      "saved": "Saved",
+      "applied": "Applied",
+      "interview": "Interview",
+      "offer": "Offer",
+      "rejected": "Rejected"
+    },
+    "topMatches": {
+      "title": "Top matches",
+      "table": {
+        "vacancy": "Vacancy",
+        "score": "Score",
+        "actions": "Actions",
+        "view": "View vacancy"
+      },
+      "empty": "No matches yet. Run onboarding to start matching."
+    }
+  },
+  "vacancies": {
+    "title": "Vacancies",
+    "subtitle": "Search and filter your imported roles.",
+    "filters": {
+      "title": "Filters",
+      "search": "Search keywords",
+      "location": "Location",
+      "remote": "Remote (true/false)",
+      "salaryMin": "Salary min"
+    },
+    "list": {
+      "title": "Vacancy list",
+      "table": {
+        "title": "Title",
+        "location": "Location",
+        "remote": "Remote",
+        "salary": "Salary",
+        "details": "Details"
+      },
+      "empty": "No vacancies found."
+    },
+    "pagination": {
+      "page": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "vacancyDetail": {
+    "notFound": "Vacancy not found.",
+    "back": "← Back to vacancies",
+    "remoteFallback": "Remote",
+    "salaryLabel": "Salary:",
+    "sourceLabel": "Source:",
+    "viewPosting": "View posting",
+    "sources": {
+      "manual": "Manual",
+      "csv": "CSV import",
+      "api": "API"
+    }
+  },
+  "matches": {
+    "title": "Matches",
+    "subtitle": "Review match scores and generate packages.",
+    "list": {
+      "title": "Match list",
+      "vacancyId": "Vacancy ID",
+      "generate": "Generate package",
+      "generating": "Generating...",
+      "empty": "No matches yet. Run onboarding to generate."
+    },
+    "pagination": {
+      "page": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "toastSuccess": "Generation queued",
+    "toastError": "Unable to queue generation"
+  },
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Track parsing status and extracted metadata.",
+    "status": {
+      "processed": "Processed",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "kinds": {
+      "resume": "Resume",
+      "cover_letter": "Cover letter",
+      "other": "Other"
+    },
+    "s3Key": "S3 key: {key}",
+    "failure": "Parsing failed: {reason}",
+    "failureFallback": "Parsing failed",
+    "empty": "No documents uploaded yet."
+  },
+  "onboarding": {
+    "title": "Onboarding wizard",
+    "subtitle": "Complete the steps to start generating matches and packages.",
+    "steps": {
+      "profile": "Profile setup",
+      "documents": "Upload documents",
+      "import": "Import vacancies",
+      "matching": "Run matching"
+    },
+    "status": {
+      "processed": "Processed",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "step1": {
+      "title": "Step 1: Profile",
+      "fullName": "Full name",
+      "location": "Location",
+      "locationPlaceholder": "Berlin, Germany",
+      "roles": "Desired roles",
+      "rolesPlaceholder": "Product Manager, Data Analyst",
+      "languages": "Languages (JSON)",
+      "languagesPlaceholder": "{\"English\": \"native\"}",
+      "salaryMin": "Salary min",
+      "salaryMax": "Salary max",
+      "submit": "Save and continue",
+      "saving": "Saving..."
+    },
+    "step2": {
+      "title": "Step 2: Upload documents",
+      "kinds": {
+        "resume": "Resume",
+        "cover_letter": "Cover letter",
+        "other": "Other"
+      },
+      "empty": "No documents uploaded yet.",
+      "continue": "Continue"
+    },
+    "step3": {
+      "title": "Step 3: Import vacancies CSV",
+      "sampleHeader": "title,location,remote,salary_min,salary_max,currency,description,url",
+      "back": "Back",
+      "continue": "Continue"
+    },
+    "step4": {
+      "title": "Step 4: Run matching",
+      "subtitle": "Launch the matching pipeline to score your vacancies.",
+      "run": "Run matching",
+      "running": "Running...",
+      "latestMatches": "Latest matches",
+      "vacancyLabel": "Vacancy {id}",
+      "scoreLabel": "Score {score}%",
+      "empty": "No matches yet."
+    },
+    "toast": {
+      "profileUpdated": "Profile updated",
+      "documentUploaded": "Document uploaded",
+      "vacanciesImported": "Vacancies imported",
+      "matchingQueued": "Matching queued"
+    },
+    "errors": {
+      "invalidLanguages": "Invalid JSON for languages",
+      "profileSave": "Unable to save profile",
+      "uploadFailed": "Upload failed",
+      "importFailed": "Import failed",
+      "matchingFailed": "Unable to run matching"
+    }
+  },
+  "packages": {
+    "title": "Generated package",
+    "notFound": "Package not found.",
+    "export": {
+      "title": "Export PDF",
+      "subtitle": "Choose a template for a polished document.",
+      "exporting": "Exporting...",
+      "download": "Download PDF"
+    },
+    "templates": {
+      "minimal": "Minimal",
+      "modern": "Modern",
+      "classic": "Classic"
+    },
+    "tabs": {
+      "cv": "Tailored CV",
+      "cover": "Cover letter",
+      "hr": "HR message"
+    },
+    "actions": {
+      "copy": "Copy",
+      "downloadTxt": "Download .txt"
+    },
+    "files": {
+      "cv": "tailored-cv.txt",
+      "cover": "cover-letter.txt",
+      "hr": "hr-message.txt"
+    },
+    "toast": {
+      "exportReady": "PDF export ready",
+      "exportFailed": "Failed to export PDF",
+      "copied": "Copied to clipboard"
+    }
+  }
+}

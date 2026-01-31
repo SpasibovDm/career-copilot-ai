@@ -8,15 +8,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api";
 import { Match, StatsResponse, Vacancy } from "@/types/api";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-function formatDate(value?: string | null) {
-  if (!value) return "Not run yet";
-  return new Date(value).toLocaleString();
-}
+import { Link } from "@/lib/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { formatDateTime, formatNumber } from "@/lib/formatters";
 
 export default function DashboardPage() {
+  const t = useTranslations("dashboard");
+  const common = useTranslations("common");
+  const locale = useLocale();
   const statsQuery = useQuery({
     queryKey: ["stats"],
     queryFn: () => apiFetch<StatsResponse>("/me/stats"),
@@ -64,10 +64,10 @@ export default function DashboardPage() {
       rejected: 0,
     };
     return Object.entries(applications).map(([status, count]) => ({
-      status,
+      status: t(`status.${status}`),
       count,
     }));
-  }, [statsQuery.data]);
+  }, [statsQuery.data, t]);
 
   const topMatches = (matchesQuery.data ?? []).slice(0, 5);
 
@@ -75,11 +75,11 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Latest performance signals across your pipeline.</p>
+          <h1 className="text-2xl font-semibold">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Button asChild>
-          <Link href="/onboarding">Run onboarding</Link>
+          <Link href="/onboarding">{t("runOnboarding")}</Link>
         </Button>
       </div>
 
@@ -88,22 +88,25 @@ export default function DashboardPage() {
           ? Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-28" />)
           : [
               {
-                label: "Total vacancies",
-                value: statsQuery.data?.vacancies_count ?? 0,
+                label: t("kpis.totalVacancies"),
+                value: formatNumber(locale, statsQuery.data?.vacancies_count ?? 0),
               },
               {
-                label: "Matches generated",
-                value: statsQuery.data?.matches_count ?? 0,
+                label: t("kpis.matchesGenerated"),
+                value: formatNumber(locale, statsQuery.data?.matches_count ?? 0),
               },
               {
-                label: "Documents parsed",
-                value: `${statsQuery.data?.documents_parsed_count ?? 0}/${
+                label: t("kpis.documentsParsed"),
+                value: `${formatNumber(locale, statsQuery.data?.documents_parsed_count ?? 0)}/${formatNumber(
+                  locale,
                   statsQuery.data?.documents_count ?? 0
-                }`,
+                )}`,
               },
               {
-                label: "Last match run",
-                value: formatDate(statsQuery.data?.last_matching_run_at),
+                label: t("kpis.lastMatchRun"),
+                value:
+                  formatDateTime(locale, statsQuery.data?.last_matching_run_at) ??
+                  t("kpis.notRunYet"),
               },
             ].map((kpi) => (
               <Card key={kpi.label}>
@@ -118,7 +121,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-1">
           <CardHeader>
-            <CardTitle>Match score distribution</CardTitle>
+            <CardTitle>{t("charts.matchDistribution")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {matchesQuery.isLoading ? (
@@ -138,7 +141,7 @@ export default function DashboardPage() {
         </Card>
         <Card className="xl:col-span-1">
           <CardHeader>
-            <CardTitle>Salary bands snapshot</CardTitle>
+            <CardTitle>{t("charts.salaryBands")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {vacanciesQuery.isLoading ? (
@@ -160,7 +163,7 @@ export default function DashboardPage() {
         </Card>
         <Card className="xl:col-span-1">
           <CardHeader>
-            <CardTitle>Pipeline statuses</CardTitle>
+            <CardTitle>{t("charts.pipelineStatuses")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {statsQuery.isLoading ? (
@@ -182,7 +185,7 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Top matches</CardTitle>
+          <CardTitle>{t("topMatches.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           {matchesQuery.isLoading ? (
@@ -191,19 +194,21 @@ export default function DashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Vacancy</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("topMatches.table.vacancy")}</TableHead>
+                  <TableHead>{t("topMatches.table.score")}</TableHead>
+                  <TableHead>{t("topMatches.table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {topMatches.map((match) => (
                   <TableRow key={match.id}>
                     <TableCell>{match.vacancy_id}</TableCell>
-                    <TableCell>{match.score.toFixed(0)}%</TableCell>
+                    <TableCell>
+                      {common("percent", { value: formatNumber(locale, match.score, { maximumFractionDigits: 0 }) })}
+                    </TableCell>
                     <TableCell>
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={`/vacancies/${match.vacancy_id}`}>View vacancy</Link>
+                        <Link href={`/vacancies/${match.vacancy_id}`}>{t("topMatches.table.view")}</Link>
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -211,7 +216,7 @@ export default function DashboardPage() {
               </TableBody>
             </Table>
           ) : (
-            <div className="text-sm text-muted-foreground">No matches yet. Run onboarding to start matching.</div>
+            <div className="text-sm text-muted-foreground">{t("topMatches.empty")}</div>
           )}
         </CardContent>
       </Card>

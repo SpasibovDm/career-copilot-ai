@@ -42,14 +42,14 @@ def compute_matches(user_id: str) -> None:
         db.close()
 
 
-def generate_package(user_id: str, vacancy_id: str) -> None:
+def generate_package(user_id: str, vacancy_id: str, language: str | None = None) -> None:
     db: Session = SessionLocal()
     try:
         profile = db.query(Profile).filter(Profile.user_id == user_id).first()
         vacancy = db.query(Vacancy).filter(Vacancy.id == vacancy_id).first()
         if not vacancy:
             return
-        cv_text, cover_text, hr_text = generate_texts(profile, vacancy)
+        cv_text, cover_text, hr_text = generate_texts(profile, vacancy, language)
         package = GeneratedPackage(
             user_id=user_id,
             vacancy_id=vacancy_id,

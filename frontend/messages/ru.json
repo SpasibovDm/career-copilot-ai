@@ -1,0 +1,312 @@
+{
+  "common": {
+    "brand": "Career Copilot",
+    "signIn": "Войти",
+    "signOut": "Выйти",
+    "getStarted": "Начать",
+    "toggleTheme": "Переключить тему",
+    "yes": "Да",
+    "no": "Нет",
+    "notAvailable": "-",
+    "percent": "{value}%"
+  },
+  "language": {
+    "label": "Язык",
+    "locales": {
+      "de": "DE",
+      "en": "EN",
+      "ru": "RU"
+    }
+  },
+  "footer": {
+    "tagline": "Career Copilot Portal — автоматизируйте поиск работы",
+    "locale": "Текущий язык: {locale}"
+  },
+  "navigation": {
+    "dashboard": "Дашборд",
+    "onboarding": "Онбординг",
+    "vacancies": "Вакансии",
+    "matches": "Совпадения",
+    "documents": "Документы"
+  },
+  "landing": {
+    "badge": "Готовая к продакшену автоматизация поиска работы",
+    "title": "Запустите командный центр поиска работы с подсказками ИИ.",
+    "subtitle": "Career Copilot Portal объединяет вакансии, документы и матчинговые потоки в одном современном рабочем пространстве.",
+    "primaryCta": "Начать онбординг",
+    "secondaryCta": "Открыть демо-дашборд",
+    "preview": {
+      "screenshot": "Заполнитель скриншота",
+      "automation": "Превью автоматизаций"
+    },
+    "features": {
+      "smartMatching": {
+        "title": "Умный матчинг",
+        "description": "Сравнивайте каждую вакансию с профилем и подсвечивайте недостающие навыки."
+      },
+      "documentIntelligence": {
+        "title": "Интеллект документов",
+        "description": "Загрузите резюме и сертификаты один раз и используйте их везде."
+      },
+      "automatedOutreach": {
+        "title": "Автоматизированные коммуникации",
+        "description": "Генерируйте персональные CV, сопроводительные письма и HR-сообщения за минуты."
+      }
+    },
+    "stats": {
+      "vacanciesTracked": "Отслеживаемые вакансии",
+      "vacanciesTrackedValue": "12k+",
+      "automationsRun": "Запущенные автоматизации",
+      "automationsRunValue": "4,8k",
+      "careerOutcomes": "Карьерные результаты",
+      "careerOutcomesValue": "93%"
+    },
+    "cta": {
+      "title": "Готовы ускорить поиск?",
+      "subtitle": "Подключите документы, импортируйте вакансии и позвольте ИИ сделать остальное.",
+      "button": "Запустить онбординг"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "С возвращением",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Пароль",
+      "submit": "Войти",
+      "footerPrompt": "Впервые здесь?",
+      "footerLink": "Создать аккаунт",
+      "toastSuccess": "С возвращением!",
+      "toastError": "Не удалось войти. Проверьте данные."
+    },
+    "register": {
+      "title": "Создайте аккаунт",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Пароль",
+      "submit": "Создать аккаунт",
+      "footerPrompt": "Уже есть аккаунт?",
+      "footerLink": "Войти",
+      "toastSuccess": "Аккаунт создан!",
+      "toastError": "Не удалось зарегистрироваться. Попробуйте другой email."
+    }
+  },
+  "validation": {
+    "email": "Введите корректный email",
+    "passwordMin": "Пароль должен быть не менее 8 символов",
+    "name": "Введите имя",
+    "roles": "Добавьте хотя бы одну роль"
+  },
+  "dashboard": {
+    "title": "Дашборд",
+    "subtitle": "Свежие показатели эффективности по вашей воронке.",
+    "runOnboarding": "Запустить онбординг",
+    "kpis": {
+      "totalVacancies": "Всего вакансий",
+      "matchesGenerated": "Сгенерировано совпадений",
+      "documentsParsed": "Документов обработано",
+      "lastMatchRun": "Последний запуск матчинга",
+      "notRunYet": "Еще не запускалось"
+    },
+    "charts": {
+      "matchDistribution": "Распределение оценок",
+      "salaryBands": "Срез зарплатных диапазонов",
+      "pipelineStatuses": "Статусы воронки"
+    },
+    "status": {
+      "saved": "Сохранено",
+      "applied": "Отклик",
+      "interview": "Интервью",
+      "offer": "Оффер",
+      "rejected": "Отказ"
+    },
+    "topMatches": {
+      "title": "Лучшие совпадения",
+      "table": {
+        "vacancy": "Вакансия",
+        "score": "Оценка",
+        "actions": "Действия",
+        "view": "Открыть вакансию"
+      },
+      "empty": "Пока нет совпадений. Запустите онбординг, чтобы начать матчинг."
+    }
+  },
+  "vacancies": {
+    "title": "Вакансии",
+    "subtitle": "Ищите и фильтруйте импортированные роли.",
+    "filters": {
+      "title": "Фильтры",
+      "search": "Ключевые слова",
+      "location": "Локация",
+      "remote": "Удаленно (true/false)",
+      "salaryMin": "Минимальная зарплата"
+    },
+    "list": {
+      "title": "Список вакансий",
+      "table": {
+        "title": "Название",
+        "location": "Локация",
+        "remote": "Удаленно",
+        "salary": "Зарплата",
+        "details": "Детали"
+      },
+      "empty": "Вакансии не найдены."
+    },
+    "pagination": {
+      "page": "Страница {page} из {total}",
+      "previous": "Назад",
+      "next": "Далее"
+    }
+  },
+  "vacancyDetail": {
+    "notFound": "Вакансия не найдена.",
+    "back": "← Назад к вакансиям",
+    "remoteFallback": "Удаленно",
+    "salaryLabel": "Зарплата:",
+    "sourceLabel": "Источник:",
+    "viewPosting": "Открыть вакансию",
+    "sources": {
+      "manual": "Вручную",
+      "csv": "Импорт CSV",
+      "api": "API"
+    }
+  },
+  "matches": {
+    "title": "Совпадения",
+    "subtitle": "Проверьте оценки и создайте пакеты.",
+    "list": {
+      "title": "Список совпадений",
+      "vacancyId": "ID вакансии",
+      "generate": "Сгенерировать пакет",
+      "generating": "Генерация...",
+      "empty": "Пока нет совпадений. Запустите онбординг, чтобы сгенерировать."
+    },
+    "pagination": {
+      "page": "Страница {page} из {total}",
+      "previous": "Назад",
+      "next": "Далее"
+    },
+    "toastSuccess": "Генерация поставлена в очередь",
+    "toastError": "Не удалось поставить генерацию в очередь"
+  },
+  "documents": {
+    "title": "Документы",
+    "subtitle": "Отслеживайте статус обработки и извлеченные метаданные.",
+    "status": {
+      "processed": "Обработано",
+      "pending": "В ожидании",
+      "failed": "Ошибка"
+    },
+    "kinds": {
+      "resume": "Резюме",
+      "cover_letter": "Сопроводительное письмо",
+      "other": "Другое"
+    },
+    "s3Key": "Ключ S3: {key}",
+    "failure": "Ошибка обработки: {reason}",
+    "failureFallback": "Ошибка обработки",
+    "empty": "Документы еще не загружены."
+  },
+  "onboarding": {
+    "title": "Мастер онбординга",
+    "subtitle": "Завершите шаги, чтобы начать генерировать совпадения и пакеты.",
+    "steps": {
+      "profile": "Настройка профиля",
+      "documents": "Загрузка документов",
+      "import": "Импорт вакансий",
+      "matching": "Запуск матчинга"
+    },
+    "status": {
+      "processed": "Обработано",
+      "pending": "В ожидании",
+      "failed": "Ошибка"
+    },
+    "step1": {
+      "title": "Шаг 1: Профиль",
+      "fullName": "Полное имя",
+      "location": "Локация",
+      "locationPlaceholder": "Берлин, Германия",
+      "roles": "Желаемые роли",
+      "rolesPlaceholder": "Product Manager, Data Analyst",
+      "languages": "Языки (JSON)",
+      "languagesPlaceholder": "{\"English\": \"native\"}",
+      "salaryMin": "Минимальная зарплата",
+      "salaryMax": "Максимальная зарплата",
+      "submit": "Сохранить и продолжить",
+      "saving": "Сохранение..."
+    },
+    "step2": {
+      "title": "Шаг 2: Загрузка документов",
+      "kinds": {
+        "resume": "Резюме",
+        "cover_letter": "Сопроводительное письмо",
+        "other": "Другое"
+      },
+      "empty": "Документы еще не загружены.",
+      "continue": "Продолжить"
+    },
+    "step3": {
+      "title": "Шаг 3: Импорт CSV вакансий",
+      "sampleHeader": "title,location,remote,salary_min,salary_max,currency,description,url",
+      "back": "Назад",
+      "continue": "Продолжить"
+    },
+    "step4": {
+      "title": "Шаг 4: Запуск матчинга",
+      "subtitle": "Запустите матчинг, чтобы оценить вакансии.",
+      "run": "Запустить матчинг",
+      "running": "Запуск...",
+      "latestMatches": "Последние совпадения",
+      "vacancyLabel": "Вакансия {id}",
+      "scoreLabel": "Оценка {score}%",
+      "empty": "Пока нет совпадений."
+    },
+    "toast": {
+      "profileUpdated": "Профиль обновлен",
+      "documentUploaded": "Документ загружен",
+      "vacanciesImported": "Вакансии импортированы",
+      "matchingQueued": "Матчинг поставлен в очередь"
+    },
+    "errors": {
+      "invalidLanguages": "Некорректный JSON для языков",
+      "profileSave": "Не удалось сохранить профиль",
+      "uploadFailed": "Не удалось загрузить",
+      "importFailed": "Импорт не удался",
+      "matchingFailed": "Не удалось запустить матчинг"
+    }
+  },
+  "packages": {
+    "title": "Сгенерированный пакет",
+    "notFound": "Пакет не найден.",
+    "export": {
+      "title": "Экспорт PDF",
+      "subtitle": "Выберите шаблон для готового документа.",
+      "exporting": "Экспорт...",
+      "download": "Скачать PDF"
+    },
+    "templates": {
+      "minimal": "Минимальный",
+      "modern": "Современный",
+      "classic": "Классический"
+    },
+    "tabs": {
+      "cv": "Персональный CV",
+      "cover": "Сопроводительное письмо",
+      "hr": "Сообщение HR"
+    },
+    "actions": {
+      "copy": "Копировать",
+      "downloadTxt": "Скачать .txt"
+    },
+    "files": {
+      "cv": "rezume.txt",
+      "cover": "soprovoditelnoe-pismo.txt",
+      "hr": "hr-soobshchenie.txt"
+    },
+    "toast": {
+      "exportReady": "PDF готов",
+      "exportFailed": "Ошибка экспорта PDF",
+      "copied": "Скопировано в буфер"
+    }
+  }
+}

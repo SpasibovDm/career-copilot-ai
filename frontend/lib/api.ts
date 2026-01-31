@@ -1,6 +1,19 @@
 import { useAuthStore } from "@/lib/auth-store";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const LOCALE_STORAGE_KEY = "locale";
+
+function getPreferredLocale() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+  if (stored) {
+    return stored;
+  }
+  const cookieMatch = document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]+)/);
+  return cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
+}
 
 export class ApiError extends Error {
   status: number;
@@ -15,9 +28,13 @@ async function refreshToken() {
   if (!refreshToken) {
     return null;
   }
+  const preferredLocale = getPreferredLocale();
   const response = await fetch(`${API_URL}/auth/refresh`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(preferredLocale ? { "Accept-Language": preferredLocale } : {}),
+    },
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
   if (!response.ok) {
@@ -38,6 +55,10 @@ export async function apiFetch<T>(
   if (!(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
+  const preferredLocale = getPreferredLocale();
+  if (preferredLocale) {
+    headers.set("Accept-Language", preferredLocale);
+  }
   if (accessToken) {
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
@@ -53,6 +74,9 @@ export async function apiFetch<T>(
       const retryHeaders = new Headers(options.headers ?? {});
       if (!(options.body instanceof FormData)) {
         retryHeaders.set("Content-Type", "application/json");
+      }
+      if (preferredLocale) {
+        retryHeaders.set("Accept-Language", preferredLocale);
       }
       retryHeaders.set("Authorization", `Bearer ${newToken}`);
       const retry = await fetch(`${API_URL}${path}`, {
