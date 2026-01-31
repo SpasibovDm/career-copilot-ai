@@ -139,3 +139,28 @@ class StatsOut(BaseModel):
     documents_parsed_count: int
     applications_by_status: Dict[ApplicationStatus, int]
     last_matching_run_at: Optional[datetime] = None
+
+
+class AdminUserOut(BaseModel):
+    id: uuid.UUID
+    email: EmailStr
+    created_at: datetime
+    documents_count: int
+
+
+class AdminUsersResponse(BaseModel):
+    items: List[AdminUserOut]
+    total: int
+    page: int
+    page_size: int
+
+
+class AdminQueueOut(BaseModel):
+    count: int
+    job_ids: List[str]
+
+
+class AdminHealthOut(BaseModel):
+    queue_size: int
+    workers: int
+    last_worker_heartbeat: Optional[datetime] = None

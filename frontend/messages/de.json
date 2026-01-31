@@ -27,7 +27,8 @@
     "onboarding": "Onboarding",
     "vacancies": "Stellen",
     "matches": "Matches",
-    "documents": "Dokumente"
+    "documents": "Dokumente",
+    "admin": "Admin"
   },
   "landing": {
     "badge": "Produktionsreife Jobsuche-Automatisierung",
@@ -307,6 +308,39 @@
       "exportReady": "PDF-Export bereit",
       "exportFailed": "PDF-Export fehlgeschlagen",
       "copied": "In die Zwischenablage kopiert"
+    }
+  },
+  "admin": {
+    "title": "Admin-Konsole",
+    "subtitle": "Nutzer, Queue-Status und Systemzustand überwachen.",
+    "health": {
+      "title": "Systemstatus",
+      "queueSize": "Queue-Größe",
+      "workers": "Aktive Worker",
+      "lastHeartbeat": "Letzter Heartbeat",
+      "never": "Noch kein Heartbeat",
+      "error": "Systemstatus konnte nicht geladen werden."
+    },
+    "queue": {
+      "title": "Queue-Übersicht",
+      "count": "Wartende Jobs",
+      "hint": "Prüfe wartende Jobs bevor Worker skaliert werden.",
+      "error": "Queue-Status konnte nicht geladen werden."
+    },
+    "users": {
+      "summaryTitle": "Nutzerübersicht",
+      "title": "Nutzer",
+      "total": "Gesamtanzahl",
+      "page": "Seite",
+      "pageValue": "Seite {page} von {total}",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "error": "Nutzer konnten nicht geladen werden.",
+      "columns": {
+        "email": "E-Mail",
+        "createdAt": "Erstellt",
+        "documents": "Dokumente"
+      }
     }
   }
 }

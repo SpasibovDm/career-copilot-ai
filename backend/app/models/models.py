@@ -51,6 +51,8 @@ class User(Base):
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
+    is_admin = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     profile = relationship("Profile", back_populates="user", uselist=False)
     documents = relationship("Document", back_populates="user")
