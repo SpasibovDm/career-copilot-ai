@@ -1,27 +1,50 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/lib/navigation";
-import { Briefcase, FileText, Gauge, Home, Inbox, Layers, LogOut } from "lucide-react";
+import { Briefcase, FileText, Gauge, Home, Inbox, Layers, LogOut, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuthStore } from "@/lib/auth-store";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Link } from "@/lib/navigation";
+import { apiFetch } from "@/lib/api";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const clearTokens = useAuthStore((state) => state.clearTokens);
   const t = useTranslations("navigation");
   const common = useTranslations("common");
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const navItems = [
-    { href: "/dashboard", label: t("dashboard"), icon: Gauge },
-    { href: "/onboarding", label: t("onboarding"), icon: Layers },
-    { href: "/vacancies", label: t("vacancies"), icon: Briefcase },
-    { href: "/matches", label: t("matches"), icon: Inbox },
-    { href: "/documents", label: t("documents"), icon: FileText },
-  ];
+  useEffect(() => {
+    let active = true;
+    apiFetch("/admin/health")
+      .then(() => {
+        if (active) setIsAdmin(true);
+      })
+      .catch(() => {
+        if (active) setIsAdmin(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const navItems = useMemo(() => {
+    const items = [
+      { href: "/dashboard", label: t("dashboard"), icon: Gauge },
+      { href: "/onboarding", label: t("onboarding"), icon: Layers },
+      { href: "/vacancies", label: t("vacancies"), icon: Briefcase },
+      { href: "/matches", label: t("matches"), icon: Inbox },
+      { href: "/documents", label: t("documents"), icon: FileText },
+    ];
+    if (isAdmin) {
+      items.push({ href: "/admin", label: t("admin"), icon: ShieldCheck });
+    }
+    return items;
+  }, [isAdmin, t]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">

@@ -73,3 +73,28 @@ export interface StatsResponse {
   applications_by_status: Record<ApplicationStatus, number>;
   last_matching_run_at?: string | null;
 }
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  created_at: string;
+  documents_count: number;
+}
+
+export interface AdminUsersResponse {
+  items: AdminUser[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface AdminQueue {
+  count: number;
+  job_ids: string[];
+}
+
+export interface AdminHealth {
+  queue_size: number;
+  workers: number;
+  last_worker_heartbeat?: string | null;
+}

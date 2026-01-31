@@ -31,11 +31,13 @@ Then open `http://localhost:3000` for the Career Copilot Portal. The frontend re
 3. Visit `/dashboard` for KPIs + charts.
 4. Browse `/vacancies` and `/matches` to generate packages.
 5. Open `/packages/{id}` once a generated package is created.
+6. Admins can review `/admin` for user and queue health.
 
 ### UI Screenshots (placeholders)
 - Landing page: `docs/screenshots/landing.png`
 - Dashboard: `docs/screenshots/dashboard.png`
 - Onboarding wizard: `docs/screenshots/onboarding.png`
+- Admin console: `docs/screenshots/admin.png`
 
 ## End-to-End cURL Flow
 

@@ -27,7 +27,8 @@
     "onboarding": "Onboarding",
     "vacancies": "Vacancies",
     "matches": "Matches",
-    "documents": "Documents"
+    "documents": "Documents",
+    "admin": "Admin"
   },
   "landing": {
     "badge": "Production-ready job search automation",
@@ -307,6 +308,39 @@
       "exportReady": "PDF export ready",
       "exportFailed": "Failed to export PDF",
       "copied": "Copied to clipboard"
+    }
+  },
+  "admin": {
+    "title": "Admin console",
+    "subtitle": "Monitor users, queue health, and system status.",
+    "health": {
+      "title": "System health",
+      "queueSize": "Queue size",
+      "workers": "Active workers",
+      "lastHeartbeat": "Last heartbeat",
+      "never": "No heartbeat yet",
+      "error": "Unable to load health metrics."
+    },
+    "queue": {
+      "title": "Queue overview",
+      "count": "Queued jobs",
+      "hint": "Review pending jobs before scaling workers.",
+      "error": "Unable to load queue status."
+    },
+    "users": {
+      "summaryTitle": "User snapshot",
+      "title": "Users",
+      "total": "Total users",
+      "page": "Page",
+      "pageValue": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next",
+      "error": "Unable to load users.",
+      "columns": {
+        "email": "Email",
+        "createdAt": "Created",
+        "documents": "Documents"
+      }
     }
   }
 }
