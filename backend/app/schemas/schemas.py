@@ -112,6 +112,10 @@ class ExportPdfResponse(BaseModel):
     download_url: str
 
 
+class GeneratePackageRequest(BaseModel):
+    language: Optional[Literal["de", "en", "ru"]] = None
+
+
 class ApplicationUpdate(BaseModel):
     status: Optional[ApplicationStatus] = None
     notes: Optional[str] = None

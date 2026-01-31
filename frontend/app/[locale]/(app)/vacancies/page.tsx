@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { Vacancy } from "@/types/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { paginate } from "@/lib/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "@/lib/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { formatCurrency, formatNumber } from "@/lib/formatters";
 
 export default function VacanciesPage() {
+  const t = useTranslations("vacancies");
+  const common = useTranslations("common");
+  const locale = useLocale();
   const [filters, setFilters] = useState({
     q: "",
     location: "",
@@ -40,36 +45,48 @@ export default function VacanciesPage() {
 
   const paginated = paginate(query.data ?? [], page, 8);
 
+  const formatSalary = (vacancy: Vacancy) => {
+    const min = vacancy.salary_min;
+    const max = vacancy.salary_max;
+    if (!min && !max) return common("notAvailable");
+    const currency = vacancy.currency;
+    const formatValue = (value?: number | null) => {
+      if (!value) return common("notAvailable");
+      return currency ? formatCurrency(locale, value, currency) : formatNumber(locale, value);
+    };
+    return `${formatValue(min)} - ${formatValue(max)}`;
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Vacancies</h1>
-        <p className="text-sm text-muted-foreground">Search and filter your imported roles.</p>
+        <h1 className="text-2xl font-semibold">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
+          <CardTitle>{t("filters.title")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-4">
           <Input
-            placeholder="Search keywords"
+            placeholder={t("filters.search")}
             value={filters.q}
             onChange={(event) => setFilters({ ...filters, q: event.target.value })}
           />
           <Input
-            placeholder="Location"
+            placeholder={t("filters.location")}
             value={filters.location}
             onChange={(event) => setFilters({ ...filters, location: event.target.value })}
           />
           <Input
-            placeholder="Remote (true/false)"
+            placeholder={t("filters.remote")}
             value={filters.remote}
             onChange={(event) => setFilters({ ...filters, remote: event.target.value })}
           />
           <Input
             type="number"
-            placeholder="Salary min"
+            placeholder={t("filters.salaryMin")}
             value={filters.salary_min}
             onChange={(event) => setFilters({ ...filters, salary_min: event.target.value })}
           />
@@ -78,7 +95,7 @@ export default function VacanciesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Vacancy list</CardTitle>
+          <CardTitle>{t("list.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           {query.isLoading ? (
@@ -87,10 +104,10 @@ export default function VacanciesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Remote</TableHead>
-                  <TableHead>Salary</TableHead>
+                  <TableHead>{t("list.table.title")}</TableHead>
+                  <TableHead>{t("list.table.location")}</TableHead>
+                  <TableHead>{t("list.table.remote")}</TableHead>
+                  <TableHead>{t("list.table.salary")}</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -98,15 +115,12 @@ export default function VacanciesPage() {
                 {paginated.items.map((vacancy) => (
                   <TableRow key={vacancy.id}>
                     <TableCell className="font-medium">{vacancy.title}</TableCell>
-                    <TableCell>{vacancy.location ?? "-"}</TableCell>
-                    <TableCell>{vacancy.remote ? "Yes" : "No"}</TableCell>
-                    <TableCell>
-                      {vacancy.salary_min ? `$${vacancy.salary_min}` : "-"} -
-                      {vacancy.salary_max ? ` $${vacancy.salary_max}` : " -"}
-                    </TableCell>
+                    <TableCell>{vacancy.location ?? common("notAvailable")}</TableCell>
+                    <TableCell>{vacancy.remote ? common("yes") : common("no")}</TableCell>
+                    <TableCell>{formatSalary(vacancy)}</TableCell>
                     <TableCell>
                       <Button asChild size="sm" variant="outline">
-                        <Link href={`/vacancies/${vacancy.id}`}>Details</Link>
+                        <Link href={`/vacancies/${vacancy.id}`}>{t("list.table.details")}</Link>
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -114,11 +128,11 @@ export default function VacanciesPage() {
               </TableBody>
             </Table>
           ) : (
-            <div className="text-sm text-muted-foreground">No vacancies found.</div>
+            <div className="text-sm text-muted-foreground">{t("list.empty")}</div>
           )}
 
           <div className="mt-4 flex items-center justify-between text-sm">
-            <span>Page {paginated.page} of {paginated.totalPages}</span>
+            <span>{t("pagination.page", { page: paginated.page, total: paginated.totalPages })}</span>
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -126,7 +140,7 @@ export default function VacanciesPage() {
                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                 disabled={paginated.page === 1}
               >
-                Previous
+                {t("pagination.previous")}
               </Button>
               <Button
                 size="sm"
@@ -134,7 +148,7 @@ export default function VacanciesPage() {
                 onClick={() => setPage((prev) => Math.min(prev + 1, paginated.totalPages))}
                 disabled={paginated.page === paginated.totalPages}
               >
-                Next
+                {t("pagination.next")}
               </Button>
             </div>
           </div>

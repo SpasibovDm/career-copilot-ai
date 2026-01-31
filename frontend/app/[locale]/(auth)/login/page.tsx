@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,17 +9,25 @@ import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/lib/navigation";
 
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
+const buildSchema = (validation: (key: string) => string) =>
+  z.object({
+    email: z.string().email(validation("email")),
+    password: z.string().min(8, validation("passwordMin")),
+  });
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof buildSchema>>;
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("auth.login");
+  const validation = useTranslations("validation");
   const setTokens = useAuthStore((state) => state.setTokens);
+
+  const schema = buildSchema(validation);
+
   const {
     register,
     handleSubmit,
@@ -31,17 +37,17 @@ export default function RegisterPage() {
   const onSubmit = async (data: FormData) => {
     try {
       const response = await apiFetch<{ access_token: string; refresh_token: string }>(
-        "/auth/register",
+        "/auth/login",
         {
           method: "POST",
           body: JSON.stringify(data),
         }
       );
       setTokens(response.access_token, response.refresh_token);
-      toast.success("Account created!");
-      router.push("/onboarding");
+      toast.success(t("toastSuccess"));
+      router.push("/dashboard");
     } catch (error) {
-      toast.error("Unable to register. Try a different email.");
+      toast.error(t("toastError"));
     }
   };
 
@@ -49,26 +55,29 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/40 p-6">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Create your account</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
-              <Input type="email" placeholder="you@example.com" {...register("email")} />
+              <label className="text-sm font-medium">{t("emailLabel")}</label>
+              <Input type="email" placeholder={t("emailPlaceholder")} {...register("email")} />
               {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Password</label>
+              <label className="text-sm font-medium">{t("passwordLabel")}</label>
               <Input type="password" {...register("password")} />
               {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              Create account
+              {t("submit")}
             </Button>
           </form>
           <p className="text-center text-sm text-muted-foreground">
-            Already have an account? <Link href="/login" className="text-primary">Sign in</Link>
+            {t("footerPrompt")}{" "}
+            <Link href="/register" className="text-primary">
+              {t("footerLink")}
+            </Link>
           </p>
         </CardContent>
       </Card>

@@ -1,43 +1,49 @@
-import Link from "next/link";
 import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const features = [
-  {
-    title: "Smart Matching",
-    description: "Score every vacancy against your profile and highlight missing skills.",
-  },
-  {
-    title: "Document Intelligence",
-    description: "Upload CVs and certifications once, then reuse them everywhere.",
-  },
-  {
-    title: "Automated Outreach",
-    description: "Generate tailored CVs, cover letters, and HR messages in minutes.",
-  },
-];
-
-const stats = [
-  { label: "Vacancies tracked", value: "12k+" },
-  { label: "Automations run", value: "4.8k" },
-  { label: "Career outcomes", value: "93%" },
-];
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { Link } from "@/lib/navigation";
 
 export default function LandingPage() {
+  const t = useTranslations("landing");
+  const common = useTranslations("common");
+
+  const features = [
+    {
+      title: t("features.smartMatching.title"),
+      description: t("features.smartMatching.description"),
+    },
+    {
+      title: t("features.documentIntelligence.title"),
+      description: t("features.documentIntelligence.description"),
+    },
+    {
+      title: t("features.automatedOutreach.title"),
+      description: t("features.automatedOutreach.description"),
+    },
+  ];
+
+  const stats = [
+    { label: t("stats.vacanciesTracked"), value: t("stats.vacanciesTrackedValue") },
+    { label: t("stats.automationsRun"), value: t("stats.automationsRunValue") },
+    { label: t("stats.careerOutcomes"), value: t("stats.careerOutcomesValue") },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2 text-lg font-semibold">
           <Sparkles className="h-5 w-5 text-emerald-300" />
-          Career Copilot Portal
+          {common("brand")}
         </div>
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           <Link href="/login" className="text-sm text-slate-200 hover:text-white">
-            Sign in
+            {common("signIn")}
           </Link>
           <Button asChild size="sm">
-            <Link href="/register">Get started</Link>
+            <Link href="/register">{common("getStarted")}</Link>
           </Button>
         </div>
       </header>
@@ -47,23 +53,22 @@ export default function LandingPage() {
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-emerald-200">
               <CheckCircle2 className="h-3 w-3" />
-              Production-ready job search automation
+              {t("badge")}
             </div>
             <h1 className="text-4xl font-semibold leading-tight md:text-5xl">
-              Launch your job search command center with AI-guided insights.
+              {t("title")}
             </h1>
             <p className="text-lg text-slate-300">
-              Career Copilot Portal orchestrates your vacancies, documents, and matching pipelines
-              in one modern workspace.
+              {t("subtitle")}
             </p>
             <div className="flex flex-wrap gap-4">
               <Button asChild size="lg" className="bg-emerald-400 text-slate-950 hover:bg-emerald-300">
                 <Link href="/register">
-                  Start onboarding <ArrowRight className="h-4 w-4" />
+                  {t("primaryCta")} <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="border-white/30 text-white">
-                <Link href="/dashboard">View demo dashboard</Link>
+                <Link href="/dashboard">{t("secondaryCta")}</Link>
               </Button>
             </div>
             <div className="flex flex-wrap gap-6 pt-6">
@@ -77,14 +82,14 @@ export default function LandingPage() {
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl">
             <div className="grid gap-4">
-              <div className="rounded-xl border border-white/10 bg-slate-900/70 p-4">
-                <div className="text-xs uppercase text-slate-400">Screenshot placeholder</div>
-                <div className="mt-4 h-40 rounded-lg bg-gradient-to-r from-emerald-400/30 to-blue-400/30" />
-              </div>
-              <div className="rounded-xl border border-white/10 bg-slate-900/70 p-4">
-                <div className="text-xs uppercase text-slate-400">Automation preview</div>
-                <div className="mt-4 h-24 rounded-lg bg-gradient-to-r from-purple-400/30 to-pink-400/30" />
-              </div>
+          <div className="rounded-xl border border-white/10 bg-slate-900/70 p-4">
+            <div className="text-xs uppercase text-slate-400">{t("preview.screenshot")}</div>
+            <div className="mt-4 h-40 rounded-lg bg-gradient-to-r from-emerald-400/30 to-blue-400/30" />
+          </div>
+          <div className="rounded-xl border border-white/10 bg-slate-900/70 p-4">
+            <div className="text-xs uppercase text-slate-400">{t("preview.automation")}</div>
+            <div className="mt-4 h-24 rounded-lg bg-gradient-to-r from-purple-400/30 to-pink-400/30" />
+          </div>
             </div>
           </div>
         </section>
@@ -103,11 +108,11 @@ export default function LandingPage() {
         <section className="rounded-2xl border border-white/10 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-2xl font-semibold">Ready to accelerate your search?</h2>
-              <p className="text-slate-300">Connect your documents, import vacancies, and let AI do the rest.</p>
+              <h2 className="text-2xl font-semibold">{t("cta.title")}</h2>
+              <p className="text-slate-300">{t("cta.subtitle")}</p>
             </div>
             <Button asChild size="lg" className="bg-white text-slate-900 hover:bg-slate-100">
-              <Link href="/onboarding">Launch onboarding</Link>
+              <Link href="/onboarding">{t("cta.button")}</Link>
             </Button>
           </div>
         </section>

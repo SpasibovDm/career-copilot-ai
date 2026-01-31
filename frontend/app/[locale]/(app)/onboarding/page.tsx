@@ -14,29 +14,36 @@ import { toast } from "sonner";
 import { Document, Match, Profile } from "@/types/api";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLocale, useTranslations } from "next-intl";
+import { formatNumber } from "@/lib/formatters";
 
-const profileSchema = z.object({
-  full_name: z.string().min(2, "Please enter your name"),
-  location: z.string().optional(),
-  desired_roles: z.string().min(2, "Add at least one role"),
-  languages: z.string().optional(),
-  salary_min: z.string().optional(),
-  salary_max: z.string().optional(),
-});
+const buildProfileSchema = (validation: (key: string) => string) =>
+  z.object({
+    full_name: z.string().min(2, validation("name")),
+    location: z.string().optional(),
+    desired_roles: z.string().min(2, validation("roles")),
+    languages: z.string().optional(),
+    salary_min: z.string().optional(),
+    salary_max: z.string().optional(),
+  });
 
-type ProfileForm = z.infer<typeof profileSchema>;
-
-const steps = [
-  "Profile setup",
-  "Upload documents",
-  "Import vacancies",
-  "Run matching",
-];
+type ProfileForm = z.infer<ReturnType<typeof buildProfileSchema>>;
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [docKind, setDocKind] = useState("resume");
   const queryClient = useQueryClient();
+  const t = useTranslations("onboarding");
+  const validation = useTranslations("validation");
+  const common = useTranslations("common");
+  const locale = useLocale();
+
+  const steps = [
+    t("steps.profile"),
+    t("steps.documents"),
+    t("steps.import"),
+    t("steps.matching"),
+  ];
 
   const profileQuery = useQuery({
     queryKey: ["profile"],
@@ -66,7 +73,7 @@ export default function OnboardingPage() {
   }, [profileQuery.data]);
 
   const { register, handleSubmit, formState } = useForm<ProfileForm>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(buildProfileSchema(validation)),
     values: formDefaults,
   });
 
@@ -77,7 +84,7 @@ export default function OnboardingPage() {
         try {
           parsedLanguages = JSON.parse(data.languages) as Record<string, string>;
         } catch (error) {
-          throw new Error("Invalid JSON for languages");
+          throw new Error(t("errors.invalidLanguages"));
         }
       }
       return apiFetch<Profile>("/me/profile", {
@@ -96,12 +103,12 @@ export default function OnboardingPage() {
       });
     },
     onSuccess: () => {
-      toast.success("Profile updated");
+      toast.success(t("toast.profileUpdated"));
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       setStep(1);
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Unable to save profile"),
+      toast.error(error instanceof Error ? error.message : t("errors.profileSave")),
   });
 
   const uploadDoc = useMutation({
@@ -115,10 +122,10 @@ export default function OnboardingPage() {
       });
     },
     onSuccess: () => {
-      toast.success("Document uploaded");
+      toast.success(t("toast.documentUploaded"));
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     },
-    onError: () => toast.error("Upload failed"),
+    onError: () => toast.error(t("errors.uploadFailed")),
   });
 
   const importVacancies = useMutation({
@@ -131,28 +138,26 @@ export default function OnboardingPage() {
       });
     },
     onSuccess: () => {
-      toast.success("Vacancies imported");
+      toast.success(t("toast.vacanciesImported"));
       setStep(3);
     },
-    onError: () => toast.error("Import failed"),
+    onError: () => toast.error(t("errors.importFailed")),
   });
 
   const runMatching = useMutation({
     mutationFn: () => apiFetch("/matching/run", { method: "POST" }),
     onSuccess: () => {
-      toast.success("Matching queued");
+      toast.success(t("toast.matchingQueued"));
       queryClient.invalidateQueries({ queryKey: ["matches"] });
     },
-    onError: () => toast.error("Unable to run matching"),
+    onError: () => toast.error(t("errors.matchingFailed")),
   });
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Onboarding wizard</h1>
-        <p className="text-sm text-muted-foreground">
-          Complete the steps to start generating matches and packages.
-        </p>
+        <h1 className="text-2xl font-semibold">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -166,43 +171,43 @@ export default function OnboardingPage() {
       {step === 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Step 1: Profile</CardTitle>
+            <CardTitle>{t("step1.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit((data) => updateProfile.mutate(data))}>
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">Full name</label>
+                <label className="text-sm font-medium">{t("step1.fullName")}</label>
                 <Input {...register("full_name")} />
                 {formState.errors.full_name && (
                   <p className="text-xs text-red-500">{formState.errors.full_name.message}</p>
                 )}
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">Location</label>
-                <Input placeholder="Berlin, Germany" {...register("location")} />
+                <label className="text-sm font-medium">{t("step1.location")}</label>
+                <Input placeholder={t("step1.locationPlaceholder")} {...register("location")} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Desired roles</label>
-                <Input placeholder="Product Manager, Data Analyst" {...register("desired_roles")} />
+                <label className="text-sm font-medium">{t("step1.roles")}</label>
+                <Input placeholder={t("step1.rolesPlaceholder")} {...register("desired_roles")} />
                 {formState.errors.desired_roles && (
                   <p className="text-xs text-red-500">{formState.errors.desired_roles.message}</p>
                 )}
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Languages (JSON)</label>
-                <Input placeholder='{"English": "native"}' {...register("languages")} />
+                <label className="text-sm font-medium">{t("step1.languages")}</label>
+                <Input placeholder={t("step1.languagesPlaceholder")} {...register("languages")} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Salary min</label>
+                <label className="text-sm font-medium">{t("step1.salaryMin")}</label>
                 <Input type="number" {...register("salary_min")} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Salary max</label>
+                <label className="text-sm font-medium">{t("step1.salaryMax")}</label>
                 <Input type="number" {...register("salary_max")} />
               </div>
               <div className="md:col-span-2">
                 <Button type="submit" disabled={updateProfile.isPending}>
-                  Save and continue
+                  {updateProfile.isPending ? t("step1.saving") : t("step1.submit")}
                 </Button>
               </div>
             </form>
@@ -213,7 +218,7 @@ export default function OnboardingPage() {
       {step === 1 && (
         <Card>
           <CardHeader>
-            <CardTitle>Step 2: Upload documents</CardTitle>
+            <CardTitle>{t("step2.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
@@ -222,9 +227,9 @@ export default function OnboardingPage() {
                 value={docKind}
                 onChange={(event) => setDocKind(event.target.value)}
               >
-                <option value="resume">Resume</option>
-                <option value="cover_letter">Cover letter</option>
-                <option value="other">Other</option>
+                <option value="resume">{t("step2.kinds.resume")}</option>
+                <option value="cover_letter">{t("step2.kinds.cover_letter")}</option>
+                <option value="other">{t("step2.kinds.other")}</option>
               </select>
               <Input
                 type="file"
@@ -244,22 +249,22 @@ export default function OnboardingPage() {
                   <Card key={doc.id} className="border-dashed">
                     <CardContent className="flex items-center justify-between py-4">
                       <div>
-                        <div className="font-medium">{doc.kind}</div>
-                        <div className="text-xs text-muted-foreground">{doc.status}</div>
+                        <div className="font-medium">{t(`step2.kinds.${doc.kind}`)}</div>
+                        <div className="text-xs text-muted-foreground">{t(`status.${doc.status}`)}</div>
                       </div>
                       <Badge variant={doc.status === "processed" ? "default" : "secondary"}>
-                        {doc.status}
+                        {t(`status.${doc.status}`)}
                       </Badge>
                     </CardContent>
                   </Card>
                 ))
               ) : (
-                <div className="text-sm text-muted-foreground">No documents uploaded yet.</div>
+                <div className="text-sm text-muted-foreground">{t("step2.empty")}</div>
               )}
             </div>
             <div className="flex justify-end">
               <Button onClick={() => setStep(2)} variant="outline">
-                Continue
+                {t("step2.continue")}
               </Button>
             </div>
           </CardContent>
@@ -269,12 +274,12 @@ export default function OnboardingPage() {
       {step === 2 && (
         <Card>
           <CardHeader>
-            <CardTitle>Step 3: Import vacancies CSV</CardTitle>
+            <CardTitle>{t("step3.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Textarea
               readOnly
-              value="title,location,remote,salary_min,salary_max,currency,description,url"
+              value={t("step3.sampleHeader")}
             />
             <Input
               type="file"
@@ -288,10 +293,10 @@ export default function OnboardingPage() {
             />
             <div className="flex justify-between">
               <Button variant="ghost" onClick={() => setStep(1)}>
-                Back
+                {t("step3.back")}
               </Button>
               <Button variant="outline" onClick={() => setStep(3)}>
-                Continue
+                {t("step3.continue")}
               </Button>
             </div>
           </CardContent>
@@ -301,17 +306,17 @@ export default function OnboardingPage() {
       {step === 3 && (
         <Card>
           <CardHeader>
-            <CardTitle>Step 4: Run matching</CardTitle>
+            <CardTitle>{t("step4.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Launch the matching pipeline to score your vacancies.
+              {t("step4.subtitle")}
             </p>
             <Button onClick={() => runMatching.mutate()} disabled={runMatching.isPending}>
-              Run matching
+              {runMatching.isPending ? t("step4.running") : t("step4.run")}
             </Button>
             <div className="space-y-2">
-              <div className="text-sm font-medium">Latest matches</div>
+              <div className="text-sm font-medium">{t("step4.latestMatches")}</div>
               {matchesQuery.isLoading ? (
                 <Skeleton className="h-20" />
               ) : matchesQuery.data?.length ? (
@@ -319,15 +324,23 @@ export default function OnboardingPage() {
                   {matchesQuery.data.slice(0, 4).map((match) => (
                     <div key={match.id} className="flex items-center justify-between rounded-md border p-3">
                       <div>
-                        <div className="text-sm font-medium">Vacancy {match.vacancy_id}</div>
-                        <div className="text-xs text-muted-foreground">Score {match.score.toFixed(0)}%</div>
+                        <div className="text-sm font-medium">
+                          {t("step4.vacancyLabel", { id: match.vacancy_id })}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {t("step4.scoreLabel", {
+                            score: formatNumber(locale, match.score, { maximumFractionDigits: 0 }),
+                          })}
+                        </div>
                       </div>
-                      <Badge>{match.score.toFixed(0)}%</Badge>
+                      <Badge>
+                        {common("percent", { value: formatNumber(locale, match.score, { maximumFractionDigits: 0 }) })}
+                      </Badge>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-sm text-muted-foreground">No matches yet.</div>
+                <div className="text-sm text-muted-foreground">{t("step4.empty")}</div>
               )}
             </div>
           </CardContent>
