@@ -22,6 +22,7 @@ const buildProfileSchema = (validation: (key: string) => string) =>
     full_name: z.string().min(2, validation("name")),
     location: z.string().optional(),
     desired_roles: z.string().min(2, validation("roles")),
+    skills: z.string().optional(),
     languages: z.string().optional(),
     salary_min: z.string().optional(),
     salary_max: z.string().optional(),
@@ -66,6 +67,7 @@ export default function OnboardingPage() {
       full_name: profile?.full_name ?? "",
       location: profile?.location ?? "",
       desired_roles: (profile?.desired_roles ?? []).join(", "),
+      skills: (profile?.skills ?? []).join(", "),
       languages: profile?.languages ? JSON.stringify(profile.languages) : "",
       salary_min: profile?.salary_min?.toString() ?? "",
       salary_max: profile?.salary_max?.toString() ?? "",
@@ -96,6 +98,12 @@ export default function OnboardingPage() {
             .split(",")
             .map((role) => role.trim())
             .filter(Boolean),
+          skills: data.skills
+            ? data.skills
+                .split(",")
+                .map((skill) => skill.trim())
+                .filter(Boolean)
+            : undefined,
           languages: parsedLanguages,
           salary_min: data.salary_min ? Number(data.salary_min) : undefined,
           salary_max: data.salary_max ? Number(data.salary_max) : undefined,
@@ -192,6 +200,10 @@ export default function OnboardingPage() {
                 {formState.errors.desired_roles && (
                   <p className="text-xs text-red-500">{formState.errors.desired_roles.message}</p>
                 )}
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t("step1.skills")}</label>
+                <Input placeholder={t("step1.skillsPlaceholder")} {...register("skills")} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t("step1.languages")}</label>

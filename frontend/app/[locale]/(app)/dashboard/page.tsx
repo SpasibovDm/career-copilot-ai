@@ -6,7 +6,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api";
-import { Match, StatsResponse, Vacancy } from "@/types/api";
+import { Match, Reminder, StatsResponse, Vacancy } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Link } from "@/lib/navigation";
@@ -28,6 +28,10 @@ export default function DashboardPage() {
   const vacanciesQuery = useQuery({
     queryKey: ["vacancies"],
     queryFn: () => apiFetch<Vacancy[]>("/vacancies"),
+  });
+  const remindersQuery = useQuery({
+    queryKey: ["reminders"],
+    queryFn: () => apiFetch<Reminder[]>("/me/reminders"),
   });
 
   const distribution = useMemo(() => {
@@ -83,9 +87,9 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {statsQuery.isLoading
-          ? Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-28" />)
+          ? Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-28" />)
           : [
               {
                 label: t("kpis.totalVacancies"),
@@ -107,6 +111,10 @@ export default function DashboardPage() {
                 value:
                   formatDateTime(locale, statsQuery.data?.last_matching_run_at) ??
                   t("kpis.notRunYet"),
+              },
+              {
+                label: t("kpis.upcomingReminders"),
+                value: formatNumber(locale, statsQuery.data?.upcoming_reminders ?? 0),
               },
             ].map((kpi) => (
               <Card key={kpi.label}>
@@ -183,41 +191,80 @@ export default function DashboardPage() {
         </Card>
       </div>
 
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("reminders.title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {remindersQuery.isLoading ? (
+              <Skeleton className="h-32" />
+            ) : remindersQuery.data?.length ? (
+              <div className="space-y-3">
+                {remindersQuery.data.slice(0, 6).map((reminder) => (
+                  <div key={reminder.id} className="rounded-md border p-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{reminder.title}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDateTime(locale, reminder.due_at)}
+                      </span>
+                    </div>
+                    {reminder.note && <p className="text-xs text-muted-foreground">{reminder.note}</p>}
+                    <div className="text-xs text-muted-foreground">{t(`reminders.status.${reminder.status}`)}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">{t("reminders.empty")}</div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("topMatches.title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {matchesQuery.isLoading ? (
+              <Skeleton className="h-32" />
+            ) : topMatches.length ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("topMatches.table.vacancy")}</TableHead>
+                    <TableHead>{t("topMatches.table.score")}</TableHead>
+                    <TableHead>{t("topMatches.table.actions")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {topMatches.map((match) => (
+                    <TableRow key={match.id}>
+                      <TableCell>{match.vacancy_id}</TableCell>
+                      <TableCell>
+                        {common("percent", { value: formatNumber(locale, match.score, { maximumFractionDigits: 0 }) })}
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/vacancies/${match.vacancy_id}`}>{t("topMatches.table.view")}</Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-sm text-muted-foreground">{t("topMatches.empty")}</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>{t("topMatches.title")}</CardTitle>
+          <CardTitle>{t("pipeline.title")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {matchesQuery.isLoading ? (
-            <Skeleton className="h-32" />
-          ) : topMatches.length ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("topMatches.table.vacancy")}</TableHead>
-                  <TableHead>{t("topMatches.table.score")}</TableHead>
-                  <TableHead>{t("topMatches.table.actions")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topMatches.map((match) => (
-                  <TableRow key={match.id}>
-                    <TableCell>{match.vacancy_id}</TableCell>
-                    <TableCell>
-                      {common("percent", { value: formatNumber(locale, match.score, { maximumFractionDigits: 0 }) })}
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/vacancies/${match.vacancy_id}`}>{t("topMatches.table.view")}</Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="text-sm text-muted-foreground">{t("topMatches.empty")}</div>
-          )}
+          <div className="text-sm text-muted-foreground">{t("pipeline.subtitle")}</div>
         </CardContent>
       </Card>
     </div>

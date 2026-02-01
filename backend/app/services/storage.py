@@ -1,7 +1,7 @@
 import os
 import uuid
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, Optional
 
 import boto3
 from botocore.client import Config
@@ -56,3 +56,23 @@ def generate_download_url(key: str, expires_in: int = 3600) -> str:
         Params={"Bucket": settings.s3_bucket, "Key": key},
         ExpiresIn=expires_in,
     )
+
+
+def download_file_content(key: str) -> Optional[bytes]:
+    if _use_local_storage():
+        try:
+            with open(key, "rb") as handle:
+                return handle.read()
+        except FileNotFoundError:
+            return None
+
+    client = boto3.client(
+        "s3",
+        endpoint_url=settings.s3_endpoint_url,
+        aws_access_key_id=settings.s3_access_key,
+        aws_secret_access_key=settings.s3_secret_key,
+        region_name=settings.s3_region,
+        config=Config(signature_version="s3v4"),
+    )
+    response = client.get_object(Bucket=settings.s3_bucket, Key=key)
+    return response["Body"].read()

@@ -107,7 +107,8 @@
       "matchesGenerated": "Matches generated",
       "documentsParsed": "Documents parsed",
       "lastMatchRun": "Last match run",
-      "notRunYet": "Not run yet"
+      "notRunYet": "Not run yet",
+      "upcomingReminders": "Upcoming reminders"
     },
     "charts": {
       "matchDistribution": "Match score distribution",
@@ -130,6 +131,19 @@
         "view": "View vacancy"
       },
       "empty": "No matches yet. Run onboarding to start matching."
+    },
+    "reminders": {
+      "title": "Upcoming reminders",
+      "empty": "No reminders scheduled yet.",
+      "status": {
+        "pending": "Pending",
+        "done": "Done",
+        "snoozed": "Snoozed"
+      }
+    },
+    "pipeline": {
+      "title": "Pipeline notes",
+      "subtitle": "Keep interview notes and follow-ups in the vacancy detail view."
     }
   },
   "vacancies": {
@@ -169,7 +183,34 @@
     "sources": {
       "manual": "Manual",
       "csv": "CSV import",
-      "api": "API"
+      "api": "API",
+      "rss": "RSS feed",
+      "html": "Career page",
+      "csv_url": "CSV URL"
+    },
+    "application": {
+      "title": "Application tracker",
+      "status": "Status",
+      "notes": "Notes",
+      "interviewNotes": "Interview scheduling notes",
+      "save": "Save updates",
+      "saving": "Saving...",
+      "saved": "Application updated",
+      "error": "Unable to update application",
+      "reminderTitle": "Reminder title",
+      "statuses": {
+        "saved": "Saved",
+        "applied": "Applied",
+        "interview": "Interview",
+        "offer": "Offer",
+        "rejected": "Rejected"
+      }
+    },
+    "reminders": {
+      "add": "Add reminder",
+      "creating": "Creating...",
+      "created": "Reminder created",
+      "error": "Unable to create reminder"
     }
   },
   "matches": {
@@ -180,7 +221,9 @@
       "vacancyId": "Vacancy ID",
       "generate": "Generate package",
       "generating": "Generating...",
-      "empty": "No matches yet. Run onboarding to generate."
+      "empty": "No matches yet. Run onboarding to generate.",
+      "viewDetails": "View details",
+      "loadingDetails": "Loading details..."
     },
     "pagination": {
       "page": "Page {page} of {total}",
@@ -188,7 +231,14 @@
       "next": "Next"
     },
     "toastSuccess": "Generation queued",
-    "toastError": "Unable to queue generation"
+    "toastError": "Unable to queue generation",
+    "details": {
+      "title": "Why this match",
+      "noReasons": "No additional reasons yet.",
+      "skillGap": "Skill gap plan",
+      "learnLink": "Learn"
+    },
+    "toastDetailError": "Unable to load match details"
   },
   "documents": {
     "title": "Documents",
@@ -234,7 +284,9 @@
       "salaryMin": "Salary min",
       "salaryMax": "Salary max",
       "submit": "Save and continue",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "skills": "Skills",
+      "skillsPlaceholder": "e.g. Python, React, SQL"
     },
     "step2": {
       "title": "Step 2: Upload documents",
@@ -308,6 +360,22 @@
       "exportReady": "PDF export ready",
       "exportFailed": "Failed to export PDF",
       "copied": "Copied to clipboard"
+    },
+    "bundle": {
+      "download": "Download bundle",
+      "exporting": "Preparing bundle...",
+      "error": "Failed to download bundle"
+    },
+    "share": {
+      "title": "Shareable link",
+      "subtitle": "Share a read-only version of this package.",
+      "copy": "Copy link",
+      "generating": "Generating...",
+      "revoking": "Revoking...",
+      "revoke": "Revoke",
+      "copied": "Share link copied",
+      "revoked": "Share link revoked",
+      "error": "Unable to manage share link"
     }
   },
   "admin": {
@@ -341,6 +409,62 @@
         "createdAt": "Created",
         "documents": "Documents"
       }
+    },
+    "metrics": {
+      "title": "Scheduler metrics",
+      "queueSize": "Queue size",
+      "lastSchedulerRun": "Last scheduler run",
+      "never": "Not run yet",
+      "error": "Unable to load scheduler metrics."
+    },
+    "sources": {
+      "title": "Vacancy sources",
+      "empty": "No sources configured yet.",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "runNow": "Run now",
+      "form": {
+        "name": "Source name",
+        "type": "Source type",
+        "url": "Source URL",
+        "config": "Selectors config (JSON)",
+        "configPlaceholder": "{\"list_selector\": \"article\", \"title_selector\": \"h2\"}",
+        "create": "Create source",
+        "creating": "Creating...",
+        "invalidConfig": "Invalid JSON in config"
+      },
+      "columns": {
+        "name": "Name",
+        "type": "Type",
+        "url": "URL",
+        "status": "Status",
+        "actions": "Actions",
+        "noUrl": "—"
+      }
+    },
+    "importRuns": {
+      "title": "Import runs",
+      "empty": "No import runs yet.",
+      "columns": {
+        "source": "Source",
+        "started": "Started",
+        "finished": "Finished",
+        "status": "Status",
+        "counts": "Inserted/Updated"
+      }
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAll": "Mark all read",
+    "loading": "Loading notifications...",
+    "empty": "No notifications yet."
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "subtitle": "Please try again in a moment.",
+    "retry": "Try again",
+    "notFoundTitle": "Page not found",
+    "notFoundSubtitle": "The page you are looking for is not available."
   }
 }
