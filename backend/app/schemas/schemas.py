@@ -4,7 +4,15 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
-from app.models.models import ApplicationStatus, DocumentKind, DocumentStatus, VacancySource
+from app.models.models import (
+    ApplicationStatus,
+    DocumentKind,
+    DocumentStatus,
+    NotificationType,
+    ReminderStatus,
+    VacancySource,
+    VacancySourceType,
+)
 
 
 class TokenPair(BaseModel):
@@ -39,6 +47,7 @@ class ProfileIn(BaseModel):
     full_name: Optional[str] = None
     location: Optional[str] = None
     desired_roles: Optional[List[str]] = None
+    skills: Optional[List[str]] = None
     languages: Optional[Dict[str, Any]] = None
     salary_min: Optional[float] = None
     salary_max: Optional[float] = None
@@ -67,7 +76,10 @@ class DocumentOut(BaseModel):
 
 class VacancyOut(BaseModel):
     id: uuid.UUID
+    source_id: Optional[uuid.UUID] = None
+    external_id: Optional[str] = None
     title: str
+    company: Optional[str] = None
     location: Optional[str] = None
     remote: bool
     salary_min: Optional[float] = None
@@ -86,10 +98,17 @@ class MatchOut(BaseModel):
     vacancy_id: uuid.UUID
     score: float
     explanation: Optional[str] = None
-    missing_skills: Optional[Dict[str, Any]] = None
+    missing_skills: Optional[List[str]] = None
+    matched_skills: Optional[List[str]] = None
+    reasons: Optional[List[str]] = None
 
     class Config:
         orm_mode = True
+
+
+class MatchDetailOut(MatchOut):
+    tokens: Optional[List[str]] = None
+    skill_gap_plan: Optional[List[Dict[str, str]]] = None
 
 
 class GeneratedPackageOut(BaseModel):
@@ -119,6 +138,7 @@ class GeneratePackageRequest(BaseModel):
 class ApplicationUpdate(BaseModel):
     status: Optional[ApplicationStatus] = None
     notes: Optional[str] = None
+    interview_notes: Optional[str] = None
 
 
 class ApplicationOut(BaseModel):
@@ -126,7 +146,18 @@ class ApplicationOut(BaseModel):
     vacancy_id: uuid.UUID
     status: ApplicationStatus
     notes: Optional[str] = None
+    interview_notes: Optional[str] = None
     updated_at: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+
+
+class ApplicationAttachmentOut(BaseModel):
+    id: uuid.UUID
+    application_id: uuid.UUID
+    document_id: uuid.UUID
+    created_at: datetime
 
     class Config:
         orm_mode = True
@@ -139,6 +170,7 @@ class StatsOut(BaseModel):
     documents_parsed_count: int
     applications_by_status: Dict[ApplicationStatus, int]
     last_matching_run_at: Optional[datetime] = None
+    upcoming_reminders: int = 0
 
 
 class AdminUserOut(BaseModel):
@@ -164,3 +196,94 @@ class AdminHealthOut(BaseModel):
     queue_size: int
     workers: int
     last_worker_heartbeat: Optional[datetime] = None
+
+
+class AdminMetricsOut(BaseModel):
+    queue_size: int
+    last_scheduler_run_at: Optional[datetime] = None
+
+
+class VacancySourceIn(BaseModel):
+    type: VacancySourceType
+    name: str
+    url: Optional[str] = None
+    config: Optional[Dict[str, Any]] = None
+    is_enabled: bool = True
+
+
+class VacancySourceOut(VacancySourceIn):
+    id: uuid.UUID
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class VacancyImportRunOut(BaseModel):
+    id: uuid.UUID
+    source_id: uuid.UUID
+    started_at: datetime
+    finished_at: Optional[datetime] = None
+    inserted_count: float
+    updated_count: float
+    status: str
+    error: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class ReminderCreate(BaseModel):
+    title: str
+    note: Optional[str] = None
+    due_at: Optional[datetime] = None
+    follow_up_days: Optional[int] = None
+
+
+class ReminderOut(BaseModel):
+    id: uuid.UUID
+    application_id: uuid.UUID
+    title: str
+    note: Optional[str] = None
+    due_at: datetime
+    status: ReminderStatus
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ReminderUpdate(BaseModel):
+    status: Optional[ReminderStatus] = None
+    snooze_until: Optional[datetime] = None
+
+
+class NotificationOut(BaseModel):
+    id: uuid.UUID
+    type: NotificationType
+    title: str
+    body: Optional[str] = None
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ShareLinkResponse(BaseModel):
+    url: str
+    token: str
+    expires_at: Optional[datetime] = None
+
+
+class ExportBundleResponse(BaseModel):
+    download_url: str
+
+
+class PublicGeneratedPackageOut(BaseModel):
+    id: uuid.UUID
+    vacancy_id: uuid.UUID
+    cv_text: str
+    cover_letter_text: str
+    hr_message_text: str

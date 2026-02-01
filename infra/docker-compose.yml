@@ -56,6 +56,7 @@ services:
       S3_SECRET_KEY: minio123
       S3_BUCKET: documents
       CORS_ALLOW_ORIGINS: http://localhost:3000
+      PUBLIC_BASE_URL: http://localhost:8000
     ports:
       - "8000:8000"
     command: >

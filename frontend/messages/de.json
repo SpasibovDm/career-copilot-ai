@@ -107,7 +107,8 @@
       "matchesGenerated": "Erstellte Matches",
       "documentsParsed": "Verarbeitete Dokumente",
       "lastMatchRun": "Letzter Matching-Lauf",
-      "notRunYet": "Noch nicht ausgeführt"
+      "notRunYet": "Noch nicht ausgeführt",
+      "upcomingReminders": "Anstehende Erinnerungen"
     },
     "charts": {
       "matchDistribution": "Match-Score-Verteilung",
@@ -130,6 +131,19 @@
         "view": "Stelle ansehen"
       },
       "empty": "Noch keine Matches. Starte das Onboarding, um zu matchen."
+    },
+    "reminders": {
+      "title": "Anstehende Erinnerungen",
+      "empty": "Noch keine Erinnerungen geplant.",
+      "status": {
+        "pending": "Offen",
+        "done": "Erledigt",
+        "snoozed": "Zurückgestellt"
+      }
+    },
+    "pipeline": {
+      "title": "Pipeline-Notizen",
+      "subtitle": "Pflege Interview-Notizen und Follow-ups in der Stellendetailansicht."
     }
   },
   "vacancies": {
@@ -169,7 +183,34 @@
     "sources": {
       "manual": "Manuell",
       "csv": "CSV-Import",
-      "api": "API"
+      "api": "API",
+      "rss": "RSS-Feed",
+      "html": "Karriereseite",
+      "csv_url": "CSV-URL"
+    },
+    "application": {
+      "title": "Bewerbungs-Tracker",
+      "status": "Status",
+      "notes": "Notizen",
+      "interviewNotes": "Interview-Planungsnotizen",
+      "save": "Aktualisieren",
+      "saving": "Speichern...",
+      "saved": "Bewerbung aktualisiert",
+      "error": "Bewerbung konnte nicht aktualisiert werden",
+      "reminderTitle": "Erinnerungstitel",
+      "statuses": {
+        "saved": "Gespeichert",
+        "applied": "Beworben",
+        "interview": "Interview",
+        "offer": "Angebot",
+        "rejected": "Abgelehnt"
+      }
+    },
+    "reminders": {
+      "add": "Erinnerung hinzufügen",
+      "creating": "Erstellen...",
+      "created": "Erinnerung erstellt",
+      "error": "Erinnerung konnte nicht erstellt werden"
     }
   },
   "matches": {
@@ -180,7 +221,9 @@
       "vacancyId": "Stellen-ID",
       "generate": "Paket generieren",
       "generating": "Generiere...",
-      "empty": "Noch keine Matches. Starte das Onboarding, um zu generieren."
+      "empty": "Noch keine Matches. Starte das Onboarding, um zu generieren.",
+      "viewDetails": "Details ansehen",
+      "loadingDetails": "Details werden geladen..."
     },
     "pagination": {
       "page": "Seite {page} von {total}",
@@ -188,7 +231,14 @@
       "next": "Weiter"
     },
     "toastSuccess": "Generierung eingereiht",
-    "toastError": "Generierung konnte nicht eingereiht werden"
+    "toastError": "Generierung konnte nicht eingereiht werden",
+    "details": {
+      "title": "Warum dieser Match",
+      "noReasons": "Noch keine zusätzlichen Gründe.",
+      "skillGap": "Skill-Gap-Plan",
+      "learnLink": "Lernen"
+    },
+    "toastDetailError": "Match-Details konnten nicht geladen werden"
   },
   "documents": {
     "title": "Dokumente",
@@ -234,7 +284,9 @@
       "salaryMin": "Mindestgehalt",
       "salaryMax": "Höchstgehalt",
       "submit": "Speichern und fortfahren",
-      "saving": "Speichern..."
+      "saving": "Speichern...",
+      "skills": "Skills",
+      "skillsPlaceholder": "z. B. Python, React, SQL"
     },
     "step2": {
       "title": "Schritt 2: Dokumente hochladen",
@@ -308,6 +360,22 @@
       "exportReady": "PDF-Export bereit",
       "exportFailed": "PDF-Export fehlgeschlagen",
       "copied": "In die Zwischenablage kopiert"
+    },
+    "bundle": {
+      "download": "Bundle herunterladen",
+      "exporting": "Bundle wird vorbereitet...",
+      "error": "Bundle konnte nicht heruntergeladen werden"
+    },
+    "share": {
+      "title": "Teilbarer Link",
+      "subtitle": "Teile eine schreibgeschützte Version dieses Pakets.",
+      "copy": "Link kopieren",
+      "generating": "Wird erstellt...",
+      "revoking": "Widerrufen...",
+      "revoke": "Widerrufen",
+      "copied": "Link kopiert",
+      "revoked": "Link widerrufen",
+      "error": "Link konnte nicht verwaltet werden"
     }
   },
   "admin": {
@@ -341,6 +409,62 @@
         "createdAt": "Erstellt",
         "documents": "Dokumente"
       }
+    },
+    "metrics": {
+      "title": "Scheduler-Metriken",
+      "queueSize": "Queue-Größe",
+      "lastSchedulerRun": "Letzter Scheduler-Lauf",
+      "never": "Noch nie",
+      "error": "Scheduler-Metriken konnten nicht geladen werden."
+    },
+    "sources": {
+      "title": "Vacancy-Quellen",
+      "empty": "Noch keine Quellen konfiguriert.",
+      "enabled": "Aktiv",
+      "disabled": "Inaktiv",
+      "runNow": "Jetzt starten",
+      "form": {
+        "name": "Quellenname",
+        "type": "Quellentyp",
+        "url": "Quellen-URL",
+        "config": "Selector-Config (JSON)",
+        "configPlaceholder": "{\"list_selector\": \"article\", \"title_selector\": \"h2\"}",
+        "create": "Quelle erstellen",
+        "creating": "Erstellen...",
+        "invalidConfig": "Ungültiges JSON in der Config"
+      },
+      "columns": {
+        "name": "Name",
+        "type": "Typ",
+        "url": "URL",
+        "status": "Status",
+        "actions": "Aktionen",
+        "noUrl": "—"
+      }
+    },
+    "importRuns": {
+      "title": "Importläufe",
+      "empty": "Noch keine Importläufe.",
+      "columns": {
+        "source": "Quelle",
+        "started": "Gestartet",
+        "finished": "Beendet",
+        "status": "Status",
+        "counts": "Neu/Aktualisiert"
+      }
     }
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "markAll": "Alle als gelesen markieren",
+    "loading": "Benachrichtigungen werden geladen...",
+    "empty": "Noch keine Benachrichtigungen."
+  },
+  "errors": {
+    "title": "Etwas ist schiefgelaufen",
+    "subtitle": "Bitte versuche es später erneut.",
+    "retry": "Erneut versuchen",
+    "notFoundTitle": "Seite nicht gefunden",
+    "notFoundSubtitle": "Die angeforderte Seite ist nicht verfügbar."
   }
 }

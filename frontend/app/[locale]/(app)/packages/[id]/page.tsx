@@ -4,13 +4,14 @@ import { useParams } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
-import { ExportPdfResponse, GeneratedPackage } from "@/types/api";
+import { ExportPdfResponse, GeneratedPackage, ShareLinkResponse } from "@/types/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
+import { useAuthStore } from "@/lib/auth-store";
 
 function downloadText(filename: string, content: string) {
   const blob = new Blob([content], { type: "text/plain" });
@@ -27,6 +28,7 @@ export default function PackagePage() {
   const packageId = params?.id as string;
   const [template, setTemplate] = useState<"minimal" | "modern" | "classic">("modern");
   const t = useTranslations("packages");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
   const query = useQuery({
     queryKey: ["package", packageId],
@@ -45,6 +47,44 @@ export default function PackagePage() {
       toast.success(t("toast.exportReady"));
     },
     onError: () => toast.error(t("toast.exportFailed")),
+  });
+
+  const shareMutation = useMutation({
+    mutationFn: () =>
+      apiFetch<ShareLinkResponse>(`/me/generated/${packageId}/share`, {
+        method: "POST",
+      }),
+    onSuccess: (data) => {
+      navigator.clipboard.writeText(data.url);
+      toast.success(t("share.copied"));
+    },
+    onError: () => toast.error(t("share.error")),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: () => apiFetch(`/me/generated/${packageId}/share`, { method: "DELETE" }),
+    onSuccess: () => toast.success(t("share.revoked")),
+    onError: () => toast.error(t("share.error")),
+  });
+
+  const bundleMutation = useMutation({
+    mutationFn: async () => {
+      const token = useAuthStore.getState().accessToken;
+      const response = await fetch(`${apiUrl}/me/generated/${packageId}/bundle.zip`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!response.ok) {
+        throw new Error("Failed");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `package-${packageId}.zip`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    },
+    onError: () => toast.error(t("bundle.error")),
   });
 
   if (query.isLoading) {
@@ -81,7 +121,32 @@ export default function PackagePage() {
             <Button size="sm" onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
               {exportMutation.isPending ? t("export.exporting") : t("export.download")}
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => bundleMutation.mutate()}
+              disabled={bundleMutation.isPending}
+            >
+              {bundleMutation.isPending ? t("bundle.exporting") : t("bundle.download")}
+            </Button>
           </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 p-3 text-sm">
+          <div className="flex-1">
+            <div className="font-medium">{t("share.title")}</div>
+            <div className="text-xs text-muted-foreground">{t("share.subtitle")}</div>
+          </div>
+          <Button size="sm" onClick={() => shareMutation.mutate()} disabled={shareMutation.isPending}>
+            {shareMutation.isPending ? t("share.generating") : t("share.copy")}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => revokeMutation.mutate()}
+            disabled={revokeMutation.isPending}
+          >
+            {revokeMutation.isPending ? t("share.revoking") : t("share.revoke")}
+          </Button>
         </div>
         <Tabs defaultValue="cv">
           <TabsList>

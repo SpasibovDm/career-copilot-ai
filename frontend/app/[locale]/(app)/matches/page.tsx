@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
-import { Match } from "@/types/api";
+import { Match, MatchDetail } from "@/types/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ export default function MatchesPage() {
   const common = useTranslations("common");
   const locale = useLocale();
   const [page, setPage] = useState(1);
+  const [expandedMatch, setExpandedMatch] = useState<MatchDetail | null>(null);
   const matchesQuery = useQuery({
     queryKey: ["matches"],
     queryFn: () => apiFetch<Match[]>("/me/matches"),
@@ -31,6 +32,12 @@ export default function MatchesPage() {
       }),
     onSuccess: () => toast.success(t("toastSuccess")),
     onError: () => toast.error(t("toastError")),
+  });
+
+  const detailMutation = useMutation({
+    mutationFn: (matchId: string) => apiFetch<MatchDetail>(`/me/matches/${matchId}`),
+    onSuccess: (data) => setExpandedMatch(data),
+    onError: () => toast.error(t("toastDetailError")),
   });
 
   const paginated = paginate(matchesQuery.data ?? [], page, 6);
@@ -60,13 +67,25 @@ export default function MatchesPage() {
                   <Badge>
                     {common("percent", { value: formatNumber(locale, match.score, { maximumFractionDigits: 0 }) })}
                   </Badge>
-                  <Button
-                    size="sm"
-                    onClick={() => generateMutation.mutate(match.vacancy_id)}
-                    disabled={generateMutation.isPending}
-                  >
-                    {generateMutation.isPending ? t("list.generating") : t("list.generate")}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => detailMutation.mutate(match.id)}
+                      disabled={detailMutation.isPending}
+                    >
+                      {detailMutation.isPending && expandedMatch?.id === match.id
+                        ? t("list.loadingDetails")
+                        : t("list.viewDetails")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => generateMutation.mutate(match.vacancy_id)}
+                      disabled={generateMutation.isPending}
+                    >
+                      {generateMutation.isPending ? t("list.generating") : t("list.generate")}
+                    </Button>
+                  </div>
                 </div>
                 {match.explanation && (
                   <p className="mt-3 text-sm text-muted-foreground">{match.explanation}</p>
@@ -78,6 +97,35 @@ export default function MatchesPage() {
                         {skill}
                       </Badge>
                     ))}
+                  </div>
+                )}
+                {expandedMatch?.id === match.id && (
+                  <div className="mt-4 rounded-md bg-muted/40 p-3 text-sm">
+                    <div className="font-medium">{t("details.title")}</div>
+                    {expandedMatch.reasons?.length ? (
+                      <ul className="mt-2 list-disc space-y-1 pl-4">
+                        {expandedMatch.reasons.map((reason) => (
+                          <li key={reason}>{reason}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-2 text-muted-foreground">{t("details.noReasons")}</p>
+                    )}
+                    {expandedMatch.skill_gap_plan?.length ? (
+                      <div className="mt-3">
+                        <div className="font-medium">{t("details.skillGap")}</div>
+                        <ul className="mt-2 list-disc space-y-1 pl-4">
+                          {expandedMatch.skill_gap_plan.map((skill) => (
+                            <li key={skill.skill}>
+                              {skill.skill}{" "}
+                              <a href={skill.link} className="text-primary" target="_blank" rel="noreferrer">
+                                {t("details.learnLink")}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                   </div>
                 )}
               </div>

@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     s3_bucket: str = "documents"
     s3_region: str = "us-east-1"
     cors_allow_origins: str = "http://localhost:3000"
+    public_rate_limit_per_minute: int = 60
+    public_base_url: str = "http://localhost:8000"
 
     class Config:
         env_file = ".env"

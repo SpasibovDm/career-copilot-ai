@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from redis import Redis
 from rq import Queue, Worker
 from sqlalchemy import func
@@ -9,8 +9,18 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.deps import require_admin
-from app.models.models import Document, User
-from app.schemas.schemas import AdminHealthOut, AdminQueueOut, AdminUserOut, AdminUsersResponse
+from app.models.models import Document, User, VacancyImportRun, VacancySourceConfig
+from app.schemas.schemas import (
+    AdminHealthOut,
+    AdminMetricsOut,
+    AdminQueueOut,
+    AdminUserOut,
+    AdminUsersResponse,
+    VacancyImportRunOut,
+    VacancySourceIn,
+    VacancySourceOut,
+)
+from app.services.ingestion import ingest_source
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 settings = get_settings()
@@ -66,4 +76,78 @@ def health(_admin: User = Depends(require_admin)):
         queue_size=queue.count,
         workers=len(workers),
         last_worker_heartbeat=last_heartbeat,
+    )
+
+
+@router.get("/metrics", response_model=AdminMetricsOut)
+def metrics(_admin: User = Depends(require_admin)):
+    redis_conn = Redis.from_url(settings.redis_url)
+    queue = Queue("default", connection=redis_conn)
+    last_run = redis_conn.get("scheduler:last_run")
+    return AdminMetricsOut(
+        queue_size=queue.count,
+        last_scheduler_run_at=datetime.fromisoformat(last_run.decode()) if last_run else None,
+    )
+
+
+@router.get("/vacancy-sources", response_model=list[VacancySourceOut])
+def list_vacancy_sources(
+    db: Session = Depends(get_db), _admin: User = Depends(require_admin)
+):
+    return db.query(VacancySourceConfig).order_by(VacancySourceConfig.created_at.desc()).all()
+
+
+@router.post("/vacancy-sources", response_model=VacancySourceOut)
+def create_vacancy_source(
+    payload: VacancySourceIn,
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_admin),
+):
+    source = VacancySourceConfig(**payload.dict())
+    db.add(source)
+    db.commit()
+    db.refresh(source)
+    return source
+
+
+@router.put("/vacancy-sources/{source_id}", response_model=VacancySourceOut)
+def update_vacancy_source(
+    source_id: str,
+    payload: VacancySourceIn,
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_admin),
+):
+    source = db.query(VacancySourceConfig).filter(VacancySourceConfig.id == source_id).first()
+    if not source:
+        raise HTTPException(status_code=404, detail="Source not found")
+    for field, value in payload.dict().items():
+        setattr(source, field, value)
+    db.commit()
+    db.refresh(source)
+    return source
+
+
+@router.post("/vacancy-sources/{source_id}/run-now", response_model=VacancyImportRunOut)
+def run_source_now(
+    source_id: str,
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_admin),
+):
+    source = db.query(VacancySourceConfig).filter(VacancySourceConfig.id == source_id).first()
+    if not source:
+        raise HTTPException(status_code=404, detail="Source not found")
+    run = ingest_source(db, source)
+    return run
+
+
+@router.get("/import-runs", response_model=list[VacancyImportRunOut])
+def list_import_runs(
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_admin),
+):
+    return (
+        db.query(VacancyImportRun)
+        .order_by(VacancyImportRun.started_at.desc())
+        .limit(100)
+        .all()
     )

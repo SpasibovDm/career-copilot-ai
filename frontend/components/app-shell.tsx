@@ -10,6 +10,7 @@ import { useAuthStore } from "@/lib/auth-store";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Link } from "@/lib/navigation";
 import { apiFetch } from "@/lib/api";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -57,6 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <ThemeToggle />
+            <NotificationsBell />
             <button
               onClick={clearTokens}
               className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
