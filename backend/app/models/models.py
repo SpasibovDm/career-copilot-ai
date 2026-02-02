@@ -75,6 +75,7 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     is_admin = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    last_matching_run_at = Column(DateTime(timezone=True), nullable=True)
 
     profile = relationship("Profile", back_populates="user", uselist=False)
     documents = relationship("Document", back_populates="user")
@@ -187,6 +188,7 @@ class GeneratedPackage(Base):
     cover_letter_text = Column(Text, nullable=False)
     hr_message_text = Column(Text, nullable=False)
     export_pdf_s3_key = Column(String(512), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     user = relationship("User", back_populates="generated_packages")
     vacancy = relationship("Vacancy", back_populates="generated_packages")

@@ -4,10 +4,10 @@ import json
 import secrets
 import zipfile
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi.responses import PlainTextResponse, StreamingResponse
 from redis import Redis
-from rq import Queue
+from rq import Queue, Retry
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -102,7 +102,11 @@ def upload_document(
     filename_lower = file.filename.lower()
     if not any(filename_lower.endswith(ext) for ext in allowed_extensions):
         raise HTTPException(status_code=400, detail="Unsupported file type")
-    if file.content_type not in {"application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"}:
+    if file.content_type not in {
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/plain",
+    }:
         raise HTTPException(status_code=400, detail="Unsupported MIME type")
     s3_key = upload_file(file.file, file.filename)
     document = Document(user_id=current_user.id, kind=kind, s3_key=s3_key)
@@ -111,7 +115,11 @@ def upload_document(
     db.refresh(document)
 
     redis_conn = Redis.from_url(settings.redis_url)
-    Queue("default", connection=redis_conn).enqueue(tasks.parse_document, str(document.id))
+    Queue("default", connection=redis_conn).enqueue(
+        tasks.parse_document,
+        str(document.id),
+        retry=Retry(max=3, interval=[10, 30, 60]),
+    )
 
     return document
 
@@ -371,11 +379,55 @@ def get_stats(db: Session = Depends(get_db), current_user: User = Depends(get_cu
     applications_by_status = {status: count for status, count in applications}
     for status in ApplicationStatus:
         applications_by_status.setdefault(status, 0)
-    last_matching_run_at = (
-        db.query(func.max(Match.created_at))
-        .filter(Match.user_id == current_user.id)
-        .scalar()
+    score_buckets = [
+        {"range": "0-19", "count": 0},
+        {"range": "20-39", "count": 0},
+        {"range": "40-59", "count": 0},
+        {"range": "60-79", "count": 0},
+        {"range": "80-100", "count": 0},
+    ]
+    scores = db.query(Match.score).filter(Match.user_id == current_user.id).all()
+    for (score,) in scores:
+        index = min(int(score // 20), 4)
+        score_buckets[index]["count"] += 1
+
+    salary_buckets = []
+    vacancies = db.query(Vacancy).order_by(Vacancy.title.asc()).limit(8).all()
+    for vacancy in vacancies:
+        salary_buckets.append(
+            {
+                "title": vacancy.title[:12],
+                "min": vacancy.salary_min or 0,
+                "max": vacancy.salary_max or 0,
+            }
+        )
+
+    start_date = datetime.now(timezone.utc).date() - timedelta(days=13)
+    start_datetime = datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc)
+    match_activity = dict(
+        db.query(func.date(Match.created_at), func.count(Match.id))
+        .filter(Match.user_id == current_user.id, Match.created_at >= start_datetime)
+        .group_by(func.date(Match.created_at))
+        .all()
     )
+    package_activity = dict(
+        db.query(func.date(GeneratedPackage.created_at), func.count(GeneratedPackage.id))
+        .filter(GeneratedPackage.user_id == current_user.id, GeneratedPackage.created_at >= start_datetime)
+        .group_by(func.date(GeneratedPackage.created_at))
+        .all()
+    )
+    activity_last_14_days = []
+    for offset in range(14):
+        day = start_date + timedelta(days=offset)
+        activity_last_14_days.append(
+            {
+                "date": day,
+                "matches_created": match_activity.get(day, 0),
+                "packages_generated": package_activity.get(day, 0),
+            }
+        )
+
+    last_matching_run_at = current_user.last_matching_run_at
     upcoming_reminders = (
         db.query(Reminder)
         .filter(Reminder.user_id == current_user.id, Reminder.status == ReminderStatus.pending)
@@ -387,6 +439,9 @@ def get_stats(db: Session = Depends(get_db), current_user: User = Depends(get_cu
         documents_count=documents_count,
         documents_parsed_count=documents_parsed_count,
         applications_by_status=applications_by_status,
+        score_histogram_data=score_buckets,
+        salary_buckets_data=salary_buckets,
+        activity_last_14_days=activity_last_14_days,
         last_matching_run_at=last_matching_run_at,
         upcoming_reminders=upcoming_reminders,
     )
@@ -406,6 +461,43 @@ def get_generated_package(
     if not package:
         raise HTTPException(status_code=404, detail="Generated package not found")
     return package
+
+
+@router.get("/generated/{package_id}/download")
+def download_generated_package(
+    package_id: str,
+    format: str = Query(default="txt", pattern="^(txt)$"),
+    section: str | None = Query(default=None, pattern="^(cv|cover|hr)$"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    package = (
+        db.query(GeneratedPackage)
+        .filter(GeneratedPackage.id == package_id, GeneratedPackage.user_id == current_user.id)
+        .first()
+    )
+    if not package:
+        raise HTTPException(status_code=404, detail="Generated package not found")
+    if format != "txt":
+        raise HTTPException(status_code=400, detail="Unsupported export format")
+    if section == "cv":
+        content = package.cv_text
+        filename = f"cv-{package.id}.txt"
+    elif section == "cover":
+        content = package.cover_letter_text
+        filename = f"cover-letter-{package.id}.txt"
+    elif section == "hr":
+        content = package.hr_message_text
+        filename = f"hr-message-{package.id}.txt"
+    else:
+        content = (
+            f"CV\n\n{package.cv_text}\n\n"
+            f"Cover Letter\n\n{package.cover_letter_text}\n\n"
+            f"HR Message\n\n{package.hr_message_text}\n"
+        )
+        filename = f"package-{package.id}.txt"
+    headers = {"Content-Disposition": f"attachment; filename={filename}"}
+    return PlainTextResponse(content, headers=headers)
 
 
 @router.post("/generated/{package_id}/export/pdf", response_model=ExportPdfResponse)

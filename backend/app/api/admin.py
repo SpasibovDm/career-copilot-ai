@@ -1,9 +1,11 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+import boto3
+from botocore.client import Config
 from redis import Redis
 from rq import Queue, Worker
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -21,6 +23,7 @@ from app.schemas.schemas import (
     VacancySourceOut,
 )
 from app.services.ingestion import ingest_source
+from app.services.storage import _use_local_storage
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 settings = get_settings()
@@ -64,7 +67,7 @@ def queue_status(_admin: User = Depends(require_admin)):
 
 
 @router.get("/health", response_model=AdminHealthOut)
-def health(_admin: User = Depends(require_admin)):
+def health(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     redis_conn = Redis.from_url(settings.redis_url)
     queue = Queue("default", connection=redis_conn)
     workers = Worker.all(connection=redis_conn)
@@ -72,10 +75,42 @@ def health(_admin: User = Depends(require_admin)):
     for worker in workers:
         if worker.last_heartbeat and (last_heartbeat is None or worker.last_heartbeat > last_heartbeat):
             last_heartbeat = worker.last_heartbeat
+
+    db_status = "ok"
+    redis_status = "ok"
+    minio_status = "ok"
+
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception:  # noqa: BLE001
+        db_status = "error"
+
+    try:
+        redis_conn.ping()
+    except Exception:  # noqa: BLE001
+        redis_status = "error"
+
+    try:
+        if not _use_local_storage():
+            client = boto3.client(
+                "s3",
+                endpoint_url=settings.s3_endpoint_url,
+                aws_access_key_id=settings.s3_access_key,
+                aws_secret_access_key=settings.s3_secret_key,
+                region_name=settings.s3_region,
+                config=Config(signature_version="s3v4"),
+            )
+            client.head_bucket(Bucket=settings.s3_bucket)
+    except Exception:  # noqa: BLE001
+        minio_status = "error"
+
     return AdminHealthOut(
         queue_size=queue.count,
         workers=len(workers),
         last_worker_heartbeat=last_heartbeat,
+        db=db_status,
+        redis=redis_status,
+        minio=minio_status,
     )
 
 

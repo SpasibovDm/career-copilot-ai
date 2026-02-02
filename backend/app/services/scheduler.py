@@ -5,7 +5,7 @@ import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from redis import Redis
-from rq import Queue
+from rq import Queue, Retry
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -44,7 +44,7 @@ def run_vacancy_ingestion() -> None:
 def run_match_recompute() -> None:
     redis_conn = _redis_client()
     queue = Queue("default", connection=redis_conn)
-    queue.enqueue(tasks.compute_matches_for_all)
+    queue.enqueue(tasks.compute_matches_for_all, retry=Retry(max=3, interval=[30, 60, 120]))
     record_scheduler_run("match_recompute")
 
 

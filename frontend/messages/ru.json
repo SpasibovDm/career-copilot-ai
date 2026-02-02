@@ -113,7 +113,13 @@
     "charts": {
       "matchDistribution": "Распределение оценок",
       "salaryBands": "Срез зарплатных диапазонов",
-      "pipelineStatuses": "Статусы воронки"
+      "pipelineStatuses": "Статусы воронки",
+      "activity": "Активность (последние 14 дней)",
+      "activityMatches": "Созданные совпадения",
+      "activityPackages": "Сгенерированные пакеты",
+      "salaryMin": "Минимальная зарплата",
+      "salaryMax": "Максимальная зарплата",
+      "empty": "Пока нет данных."
     },
     "status": {
       "saved": "Сохранено",
@@ -359,7 +365,8 @@
     "toast": {
       "exportReady": "PDF готов",
       "exportFailed": "Ошибка экспорта PDF",
-      "copied": "Скопировано в буфер"
+      "copied": "Скопировано в буфер",
+      "downloadFailed": "Не удалось скачать текстовый файл"
     },
     "bundle": {
       "download": "Скачать пакет",
@@ -386,6 +393,13 @@
       "queueSize": "Размер очереди",
       "workers": "Активные воркеры",
       "lastHeartbeat": "Последний heartbeat",
+      "db": "База данных",
+      "redis": "Redis",
+      "minio": "MinIO",
+      "status": {
+        "ok": "OK",
+        "error": "Ошибка"
+      },
       "never": "Heartbeat отсутствует",
       "error": "Не удалось загрузить состояние."
     },

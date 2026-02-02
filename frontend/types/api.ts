@@ -90,6 +90,9 @@ export interface StatsResponse {
   documents_count: number;
   documents_parsed_count: number;
   applications_by_status: Record<ApplicationStatus, number>;
+  score_histogram_data: { range: string; count: number }[];
+  salary_buckets_data: { title: string; min: number; max: number }[];
+  activity_last_14_days: { date: string; matches_created: number; packages_generated: number }[];
   last_matching_run_at?: string | null;
   upcoming_reminders: number;
 }
@@ -117,6 +120,9 @@ export interface AdminHealth {
   queue_size: number;
   workers: number;
   last_worker_heartbeat?: string | null;
+  db: string;
+  redis: string;
+  minio: string;
 }
 
 export interface AdminMetrics {

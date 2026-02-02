@@ -130,6 +130,18 @@ export default function AdminPage() {
                     {formatDateTime(locale, healthQuery.data.last_worker_heartbeat) ?? t("health.never")}
                   </span>
                 </div>
+                <div className="flex justify-between">
+                  <span>{t("health.db")}</span>
+                  <span className="font-medium">{t(`health.status.${healthQuery.data.db}`)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{t("health.redis")}</span>
+                  <span className="font-medium">{t(`health.status.${healthQuery.data.redis}`)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{t("health.minio")}</span>
+                  <span className="font-medium">{t(`health.status.${healthQuery.data.minio}`)}</span>
+                </div>
               </div>
             )}
           </CardContent>

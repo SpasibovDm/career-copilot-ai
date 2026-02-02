@@ -113,7 +113,13 @@
     "charts": {
       "matchDistribution": "Match score distribution",
       "salaryBands": "Salary bands snapshot",
-      "pipelineStatuses": "Pipeline statuses"
+      "pipelineStatuses": "Pipeline statuses",
+      "activity": "Activity (last 14 days)",
+      "activityMatches": "Matches created",
+      "activityPackages": "Packages generated",
+      "salaryMin": "Min salary",
+      "salaryMax": "Max salary",
+      "empty": "No data yet."
     },
     "status": {
       "saved": "Saved",
@@ -359,7 +365,8 @@
     "toast": {
       "exportReady": "PDF export ready",
       "exportFailed": "Failed to export PDF",
-      "copied": "Copied to clipboard"
+      "copied": "Copied to clipboard",
+      "downloadFailed": "Failed to download text file"
     },
     "bundle": {
       "download": "Download bundle",
@@ -386,6 +393,13 @@
       "queueSize": "Queue size",
       "workers": "Active workers",
       "lastHeartbeat": "Last heartbeat",
+      "db": "Database",
+      "redis": "Redis",
+      "minio": "MinIO",
+      "status": {
+        "ok": "OK",
+        "error": "Error"
+      },
       "never": "No heartbeat yet",
       "error": "Unable to load health metrics."
     },

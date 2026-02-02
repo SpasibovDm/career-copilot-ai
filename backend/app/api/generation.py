@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from redis import Redis
-from rq import Queue
+from rq import Queue, Retry
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -27,6 +27,10 @@ def generate_for_vacancy(
     redis_conn = Redis.from_url(settings.redis_url)
     language = payload.language if payload else None
     Queue("default", connection=redis_conn).enqueue(
-        tasks.generate_package, str(current_user.id), vacancy_id, language
+        tasks.generate_package,
+        str(current_user.id),
+        vacancy_id,
+        language,
+        retry=Retry(max=3, interval=[10, 30, 60]),
     )
     return {"status": "queued"}

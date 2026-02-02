@@ -113,7 +113,13 @@
     "charts": {
       "matchDistribution": "Match-Score-Verteilung",
       "salaryBands": "Gehaltsband-Übersicht",
-      "pipelineStatuses": "Pipeline-Status"
+      "pipelineStatuses": "Pipeline-Status",
+      "activity": "Aktivität (letzte 14 Tage)",
+      "activityMatches": "Erstellte Matches",
+      "activityPackages": "Erstellte Pakete",
+      "salaryMin": "Mindestgehalt",
+      "salaryMax": "Höchstgehalt",
+      "empty": "Noch keine Daten."
     },
     "status": {
       "saved": "Gespeichert",
@@ -359,7 +365,8 @@
     "toast": {
       "exportReady": "PDF-Export bereit",
       "exportFailed": "PDF-Export fehlgeschlagen",
-      "copied": "In die Zwischenablage kopiert"
+      "copied": "In die Zwischenablage kopiert",
+      "downloadFailed": "Textdatei konnte nicht heruntergeladen werden"
     },
     "bundle": {
       "download": "Bundle herunterladen",
@@ -386,6 +393,13 @@
       "queueSize": "Queue-Größe",
       "workers": "Aktive Worker",
       "lastHeartbeat": "Letzter Heartbeat",
+      "db": "Datenbank",
+      "redis": "Redis",
+      "minio": "MinIO",
+      "status": {
+        "ok": "OK",
+        "error": "Fehler"
+      },
       "never": "Noch kein Heartbeat",
       "error": "Systemstatus konnte nicht geladen werden."
     },
