@@ -6,12 +6,12 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api";
-import { Match, Reminder, StatsResponse, Vacancy } from "@/types/api";
+import { Match, Reminder, StatsResponse } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Link } from "@/lib/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { formatDateTime, formatNumber } from "@/lib/formatters";
+import { formatDate, formatDateTime, formatNumber } from "@/lib/formatters";
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
@@ -25,39 +25,13 @@ export default function DashboardPage() {
     queryKey: ["matches"],
     queryFn: () => apiFetch<Match[]>("/me/matches"),
   });
-  const vacanciesQuery = useQuery({
-    queryKey: ["vacancies"],
-    queryFn: () => apiFetch<Vacancy[]>("/vacancies"),
-  });
   const remindersQuery = useQuery({
     queryKey: ["reminders"],
     queryFn: () => apiFetch<Reminder[]>("/me/reminders"),
   });
 
-  const distribution = useMemo(() => {
-    const scores = matchesQuery.data ?? [];
-    const buckets = [0, 20, 40, 60, 80, 100].map((start) => ({
-      range: `${start}-${start + 19}`,
-      count: 0,
-    }));
-    scores.forEach((match) => {
-      const index = Math.min(Math.floor(match.score / 20), 4);
-      buckets[index].count += 1;
-    });
-    return buckets;
-  }, [matchesQuery.data]);
-
-  const salaryBands = useMemo(() => {
-    const vacancies = vacanciesQuery.data ?? [];
-    if (!vacancies.length) {
-      return [];
-    }
-    return vacancies.slice(0, 8).map((vacancy) => ({
-      title: vacancy.title.slice(0, 12),
-      min: vacancy.salary_min ?? 0,
-      max: vacancy.salary_max ?? 0,
-    }));
-  }, [vacanciesQuery.data]);
+  const distribution = statsQuery.data?.score_histogram_data ?? [];
+  const salaryBands = statsQuery.data?.salary_buckets_data ?? [];
 
   const statusData = useMemo(() => {
     const applications = statsQuery.data?.applications_by_status ?? {
@@ -72,6 +46,14 @@ export default function DashboardPage() {
       count,
     }));
   }, [statsQuery.data, t]);
+
+  const activityData = useMemo(() => {
+    const activity = statsQuery.data?.activity_last_14_days ?? [];
+    return activity.map((entry) => ({
+      ...entry,
+      label: formatDate(locale, entry.date) ?? entry.date,
+    }));
+  }, [statsQuery.data, locale]);
 
   const topMatches = (matchesQuery.data ?? []).slice(0, 5);
 
@@ -132,9 +114,9 @@ export default function DashboardPage() {
             <CardTitle>{t("charts.matchDistribution")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
-            {matchesQuery.isLoading ? (
+            {statsQuery.isLoading ? (
               <Skeleton className="h-full" />
-            ) : (
+            ) : distribution.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={distribution}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -144,6 +126,10 @@ export default function DashboardPage() {
                   <Bar dataKey="count" fill="#60a5fa" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                {t("charts.empty")}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -152,9 +138,9 @@ export default function DashboardPage() {
             <CardTitle>{t("charts.salaryBands")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
-            {vacanciesQuery.isLoading ? (
+            {statsQuery.isLoading ? (
               <Skeleton className="h-full" />
-            ) : (
+            ) : salaryBands.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={salaryBands}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -162,10 +148,14 @@ export default function DashboardPage() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="min" fill="#22c55e" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="max" fill="#a855f7" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="min" name={t("charts.salaryMin")} fill="#22c55e" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="max" name={t("charts.salaryMax")} fill="#a855f7" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                {t("charts.empty")}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -190,6 +180,43 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("charts.activity")}</CardTitle>
+        </CardHeader>
+        <CardContent className="h-72">
+          {statsQuery.isLoading ? (
+            <Skeleton className="h-full" />
+          ) : activityData.length ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={activityData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar
+                  dataKey="matches_created"
+                  name={t("charts.activityMatches")}
+                  fill="#0ea5e9"
+                  radius={[6, 6, 0, 0]}
+                />
+                <Bar
+                  dataKey="packages_generated"
+                  name={t("charts.activityPackages")}
+                  fill="#6366f1"
+                  radius={[6, 6, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              {t("charts.empty")}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>

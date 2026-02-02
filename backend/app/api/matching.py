@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from redis import Redis
-from rq import Queue
+from rq import Queue, Retry
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -18,5 +18,9 @@ def run_matching(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     redis_conn = Redis.from_url(settings.redis_url)
-    Queue("default", connection=redis_conn).enqueue(tasks.compute_matches, str(current_user.id))
+    Queue("default", connection=redis_conn).enqueue(
+        tasks.compute_matches,
+        str(current_user.id),
+        retry=Retry(max=3, interval=[10, 30, 60]),
+    )
     return {"status": "queued"}

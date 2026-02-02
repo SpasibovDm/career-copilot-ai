@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
@@ -163,12 +163,32 @@ class ApplicationAttachmentOut(BaseModel):
         orm_mode = True
 
 
+class ScoreHistogramBucket(BaseModel):
+    range: str
+    count: int
+
+
+class SalaryBucket(BaseModel):
+    title: str
+    min: float
+    max: float
+
+
+class ActivityBucket(BaseModel):
+    date: date
+    matches_created: int
+    packages_generated: int
+
+
 class StatsOut(BaseModel):
     vacancies_count: int
     matches_count: int
     documents_count: int
     documents_parsed_count: int
     applications_by_status: Dict[ApplicationStatus, int]
+    score_histogram_data: List[ScoreHistogramBucket]
+    salary_buckets_data: List[SalaryBucket]
+    activity_last_14_days: List[ActivityBucket]
     last_matching_run_at: Optional[datetime] = None
     upcoming_reminders: int = 0
 
@@ -196,6 +216,9 @@ class AdminHealthOut(BaseModel):
     queue_size: int
     workers: int
     last_worker_heartbeat: Optional[datetime] = None
+    db: str
+    redis: str
+    minio: str
 
 
 class AdminMetricsOut(BaseModel):

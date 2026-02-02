@@ -13,22 +13,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/lib/auth-store";
 
-function downloadText(filename: string, content: string) {
-  const blob = new Blob([content], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  anchor.click();
-  URL.revokeObjectURL(url);
-}
-
 export default function PackagePage() {
   const params = useParams();
   const packageId = params?.id as string;
   const [template, setTemplate] = useState<"minimal" | "modern" | "classic">("modern");
   const t = useTranslations("packages");
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+  const token = useAuthStore.getState().accessToken;
+
+  const downloadText = async (section: "cv" | "cover" | "hr", filename: string) => {
+    const response = await fetch(
+      `${apiUrl}/me/generated/${packageId}/download?format=txt&section=${section}`,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed");
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   const query = useQuery({
     queryKey: ["package", packageId],
@@ -69,7 +79,6 @@ export default function PackagePage() {
 
   const bundleMutation = useMutation({
     mutationFn: async () => {
-      const token = useAuthStore.getState().accessToken;
       const response = await fetch(`${apiUrl}/me/generated/${packageId}/bundle.zip`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -167,7 +176,12 @@ export default function PackagePage() {
               >
                 {t("actions.copy")}
               </Button>
-              <Button size="sm" onClick={() => downloadText(t("files.cv"), pkg.cv_text)}>
+              <Button
+                size="sm"
+                onClick={() =>
+                  downloadText("cv", t("files.cv")).catch(() => toast.error(t("toast.downloadFailed")))
+                }
+              >
                 {t("actions.downloadTxt")}
               </Button>
             </div>
@@ -185,7 +199,12 @@ export default function PackagePage() {
               >
                 {t("actions.copy")}
               </Button>
-              <Button size="sm" onClick={() => downloadText(t("files.cover"), pkg.cover_letter_text)}>
+              <Button
+                size="sm"
+                onClick={() =>
+                  downloadText("cover", t("files.cover")).catch(() => toast.error(t("toast.downloadFailed")))
+                }
+              >
                 {t("actions.downloadTxt")}
               </Button>
             </div>
@@ -203,7 +222,12 @@ export default function PackagePage() {
               >
                 {t("actions.copy")}
               </Button>
-              <Button size="sm" onClick={() => downloadText(t("files.hr"), pkg.hr_message_text)}>
+              <Button
+                size="sm"
+                onClick={() =>
+                  downloadText("hr", t("files.hr")).catch(() => toast.error(t("toast.downloadFailed")))
+                }
+              >
                 {t("actions.downloadTxt")}
               </Button>
             </div>

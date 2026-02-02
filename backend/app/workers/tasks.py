@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
@@ -47,6 +49,7 @@ def parse_document(document_id: str) -> None:
 def compute_matches(user_id: str) -> None:
     db: Session = SessionLocal()
     try:
+        user = db.query(User).filter(User.id == user_id).first()
         profile = db.query(Profile).filter(Profile.user_id == user_id).first()
         vacancies = db.query(Vacancy).all()
         matches = build_matches(profile, vacancies)
@@ -64,6 +67,8 @@ def compute_matches(user_id: str) -> None:
                     body=f"{len(top_matches)} matches updated for your profile.",
                 )
             )
+        if user:
+            user.last_matching_run_at = datetime.now(timezone.utc)
         db.commit()
     finally:
         db.close()
@@ -91,6 +96,7 @@ def compute_matches_for_all() -> None:
                         body=f"{len(top_matches)} matches updated for your profile.",
                     )
                 )
+            user.last_matching_run_at = datetime.now(timezone.utc)
         db.commit()
     finally:
         db.close()
