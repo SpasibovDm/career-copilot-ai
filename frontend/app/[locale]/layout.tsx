@@ -29,7 +29,7 @@ export default async function LocaleLayout({
 
   return (
     <Providers>
-      <NextIntlClientProvider messages={messages}>
+      <NextIntlClientProvider locale={locale} messages={messages}>
         <LocaleSync locale={locale} />
         {children}
         <SiteFooter />
