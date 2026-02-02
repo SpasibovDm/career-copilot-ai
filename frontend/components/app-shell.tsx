@@ -61,7 +61,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <NotificationsBell />
             <button
               onClick={clearTokens}
-              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label={common("signOut")}
             >
               <LogOut className="h-4 w-4" />
               {common("signOut")}
@@ -80,9 +81,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                     active ? "bg-primary text-primary-foreground" : "hover:bg-muted"
                   )}
+                  aria-current={active ? "page" : undefined}
                 >
                   <Icon className="h-4 w-4" />
                   {item.label}

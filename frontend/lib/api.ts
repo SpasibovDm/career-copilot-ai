@@ -3,7 +3,7 @@ import { useAuthStore } from "@/lib/auth-store";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const LOCALE_STORAGE_KEY = "locale";
 
-function getPreferredLocale() {
+export function getPreferredLocale() {
   if (typeof window === "undefined") {
     return null;
   }
@@ -17,9 +17,13 @@ function getPreferredLocale() {
 
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  code?: string;
+  details?: unknown;
+  constructor(message: string, status: number, code?: string, details?: unknown) {
     super(message);
     this.status = status;
+    this.code = code;
+    this.details = details;
   }
 }
 
@@ -91,6 +95,11 @@ export async function apiFetch<T>(
   }
 
   if (!response.ok) {
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      const data = (await response.json()) as { message?: string; code?: string; details?: unknown };
+      throw new ApiError(data.message ?? "Request failed", response.status, data.code, data.details);
+    }
     const message = await response.text();
     throw new ApiError(message || "Request failed", response.status);
   }
@@ -98,4 +107,67 @@ export async function apiFetch<T>(
     return {} as T;
   }
   return (await response.json()) as T;
+}
+
+export async function apiUpload<T>(
+  path: string,
+  formData: FormData,
+  onProgress?: (progress: number) => void,
+  didRetry = false
+): Promise<T> {
+  const accessToken = useAuthStore.getState().accessToken;
+  const preferredLocale = getPreferredLocale();
+
+  const uploadWithToken = (token: string | null): Promise<T> =>
+    new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `${API_URL}${path}`);
+      if (token) {
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+      }
+      if (preferredLocale) {
+        xhr.setRequestHeader("Accept-Language", preferredLocale);
+      }
+      if (xhr.upload && onProgress) {
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            onProgress(Math.round((event.loaded / event.total) * 100));
+          }
+        };
+      }
+      xhr.onload = () => {
+        if (xhr.status === 401 && !didRetry) {
+          refreshToken()
+            .then((newToken) => {
+              if (newToken) {
+                return apiUpload<T>(path, formData, onProgress, true).then(resolve).catch(reject);
+              }
+              reject(new ApiError("Unauthorized", 401, "UNAUTHORIZED"));
+              return null;
+            })
+            .catch(reject);
+          return;
+        }
+        if (xhr.status >= 400) {
+          try {
+            const data = JSON.parse(xhr.responseText) as { message?: string; code?: string; details?: unknown };
+            reject(new ApiError(data.message ?? "Request failed", xhr.status, data.code, data.details));
+          } catch (error) {
+            reject(new ApiError(xhr.responseText || "Request failed", xhr.status));
+          }
+          return;
+        }
+        if (!xhr.responseText) {
+          resolve({} as T);
+          return;
+        }
+        resolve(JSON.parse(xhr.responseText) as T);
+      };
+      xhr.onerror = () => {
+        reject(new ApiError("Network error", xhr.status || 0));
+      };
+      xhr.send(formData);
+    });
+
+  return uploadWithToken(accessToken);
 }

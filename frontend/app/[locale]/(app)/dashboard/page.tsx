@@ -6,7 +6,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api";
-import { Match, Reminder, StatsResponse } from "@/types/api";
+import { Match, PaginatedResponse, Reminder, StatsResponse } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Link } from "@/lib/navigation";
@@ -23,7 +23,7 @@ export default function DashboardPage() {
   });
   const matchesQuery = useQuery({
     queryKey: ["matches"],
-    queryFn: () => apiFetch<Match[]>("/me/matches"),
+    queryFn: () => apiFetch<PaginatedResponse<Match>>("/me/matches?page=1&page_size=5"),
   });
   const remindersQuery = useQuery({
     queryKey: ["reminders"],
@@ -55,7 +55,7 @@ export default function DashboardPage() {
     }));
   }, [statsQuery.data, locale]);
 
-  const topMatches = (matchesQuery.data ?? []).slice(0, 5);
+  const topMatches = matchesQuery.data?.items ?? [];
 
   return (
     <div className="space-y-6">
