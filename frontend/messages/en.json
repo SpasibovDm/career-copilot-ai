@@ -78,7 +78,10 @@
       "footerPrompt": "New here?",
       "footerLink": "Create an account",
       "toastSuccess": "Welcome back!",
-      "toastError": "Unable to sign in. Check your credentials."
+      "toastError": "Unable to sign in. Check your credentials.",
+      "demoButton": "Use demo account",
+      "demoSuccess": "Signed in with demo account",
+      "demoError": "Unable to sign in with demo account"
     },
     "register": {
       "title": "Create your account",
@@ -160,7 +163,19 @@
       "search": "Search keywords",
       "location": "Location",
       "remote": "Remote (true/false)",
-      "salaryMin": "Salary min"
+      "salaryMin": "Salary min",
+      "remoteOptions": {
+        "all": "All",
+        "remote": "Remote",
+        "onsite": "On-site"
+      },
+      "presetName": "Preset name",
+      "save": "Save preset",
+      "saving": "Saving...",
+      "saved": "Preset saved",
+      "saveError": "Unable to save preset",
+      "applyPreset": "Apply {name}",
+      "emptyPresets": "No presets saved yet."
     },
     "list": {
       "title": "Vacancy list",
@@ -171,7 +186,8 @@
         "salary": "Salary",
         "details": "Details"
       },
-      "empty": "No vacancies found."
+      "empty": "No vacancies found.",
+      "emptyCta": "Import CSV"
     },
     "pagination": {
       "page": "Page {page} of {total}",
@@ -229,7 +245,9 @@
       "generating": "Generating...",
       "empty": "No matches yet. Run onboarding to generate.",
       "viewDetails": "View details",
-      "loadingDetails": "Loading details..."
+      "loadingDetails": "Loading details...",
+      "vacancyLabel": "Vacancy",
+      "emptyCta": "Run matching"
     },
     "pagination": {
       "page": "Page {page} of {total}",
@@ -244,7 +262,8 @@
       "skillGap": "Skill gap plan",
       "learnLink": "Learn"
     },
-    "toastDetailError": "Unable to load match details"
+    "toastDetailError": "Unable to load match details",
+    "searchPlaceholder": "Search matches"
   },
   "documents": {
     "title": "Documents",
@@ -262,7 +281,17 @@
     "s3Key": "S3 key: {key}",
     "failure": "Parsing failed: {reason}",
     "failureFallback": "Parsing failed",
-    "empty": "No documents uploaded yet."
+    "empty": "No documents uploaded yet.",
+    "reparse": "Re-run parsing",
+    "reparseQueued": "Parsing re-queued",
+    "reparseFailed": "Unable to re-run parsing",
+    "preview": {
+      "skills": "Skills",
+      "experience": "Experience",
+      "education": "Education",
+      "empty": "No entries detected yet"
+    },
+    "emptyCta": "Upload a document"
   },
   "onboarding": {
     "title": "Onboarding wizard",
@@ -302,7 +331,12 @@
         "other": "Other"
       },
       "empty": "No documents uploaded yet.",
-      "continue": "Continue"
+      "continue": "Continue",
+      "kindLabel": "Document type",
+      "fileLabel": "Upload document",
+      "uploading": "Uploading... {progress}%",
+      "failedHint": "Parsing failed. Re-run when ready.",
+      "reparse": "Re-run parsing"
     },
     "step3": {
       "title": "Step 3: Import vacancies CSV",
@@ -324,14 +358,18 @@
       "profileUpdated": "Profile updated",
       "documentUploaded": "Document uploaded",
       "vacanciesImported": "Vacancies imported",
-      "matchingQueued": "Matching queued"
+      "matchingQueued": "Matching queued",
+      "documentReparseQueued": "Parsing re-queued"
     },
     "errors": {
       "invalidLanguages": "Invalid JSON for languages",
       "profileSave": "Unable to save profile",
       "uploadFailed": "Upload failed",
       "importFailed": "Import failed",
-      "matchingFailed": "Unable to run matching"
+      "matchingFailed": "Unable to run matching",
+      "uploadTooLarge": "File exceeds 10MB limit",
+      "uploadUnsupported": "Only PDF or DOCX files are supported",
+      "reparseFailed": "Unable to re-run parsing"
     }
   },
   "packages": {
@@ -401,7 +439,9 @@
         "error": "Error"
       },
       "never": "No heartbeat yet",
-      "error": "Unable to load health metrics."
+      "error": "Unable to load health metrics.",
+      "parsingSuccess": "Parsing success",
+      "parsingFailed": "Parsing failed"
     },
     "queue": {
       "title": "Queue overview",
@@ -472,13 +512,15 @@
     "title": "Notifications",
     "markAll": "Mark all read",
     "loading": "Loading notifications...",
-    "empty": "No notifications yet."
+    "empty": "No notifications yet.",
+    "markRead": "Mark as read"
   },
   "errors": {
     "title": "Something went wrong",
     "subtitle": "Please try again in a moment.",
     "retry": "Try again",
     "notFoundTitle": "Page not found",
-    "notFoundSubtitle": "The page you are looking for is not available."
+    "notFoundSubtitle": "The page you are looking for is not available.",
+    "backHome": "Back to dashboard"
   }
 }

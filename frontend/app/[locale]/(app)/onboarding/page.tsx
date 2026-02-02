@@ -5,17 +5,18 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, apiUpload, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Document, Match, Profile } from "@/types/api";
+import { Document, Match, PaginatedResponse, Profile } from "@/types/api";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocale, useTranslations } from "next-intl";
 import { formatNumber } from "@/lib/formatters";
+import { Progress } from "@/components/ui/progress";
 
 const buildProfileSchema = (validation: (key: string) => string) =>
   z.object({
@@ -33,6 +34,7 @@ type ProfileForm = z.infer<ReturnType<typeof buildProfileSchema>>;
 export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [docKind, setDocKind] = useState("resume");
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const t = useTranslations("onboarding");
   const validation = useTranslations("validation");
@@ -58,8 +60,9 @@ export default function OnboardingPage() {
 
   const matchesQuery = useQuery({
     queryKey: ["matches"],
-    queryFn: () => apiFetch<Match[]>("/me/matches"),
+    queryFn: () => apiFetch<PaginatedResponse<Match>>("/me/matches"),
   });
+  const matches = matchesQuery.data?.items ?? [];
 
   const formDefaults = useMemo(() => {
     const profile = profileQuery.data;
@@ -121,19 +124,40 @@ export default function OnboardingPage() {
 
   const uploadDoc = useMutation({
     mutationFn: async ({ kind, file }: { kind: string; file: File }) => {
+      setUploadProgress(0);
       const formData = new FormData();
       formData.append("kind", kind);
       formData.append("file", file);
-      return apiFetch<Document>("/me/documents/upload", {
-        method: "POST",
-        body: formData,
+      return apiUpload<Document>("/me/documents/upload", formData, (progress) => {
+        setUploadProgress(progress);
       });
     },
     onSuccess: () => {
       toast.success(t("toast.documentUploaded"));
       queryClient.invalidateQueries({ queryKey: ["documents"] });
+      setUploadProgress(null);
     },
-    onError: () => toast.error(t("errors.uploadFailed")),
+    onError: (error) => {
+      setUploadProgress(null);
+      if (error instanceof ApiError && error.code === "DOC_TOO_LARGE") {
+        toast.error(t("errors.uploadTooLarge"));
+        return;
+      }
+      if (error instanceof ApiError && error.code === "UNSUPPORTED_FILE") {
+        toast.error(t("errors.uploadUnsupported"));
+        return;
+      }
+      toast.error(t("errors.uploadFailed"));
+    },
+  });
+
+  const reparseDoc = useMutation({
+    mutationFn: (documentId: string) => apiFetch<Document>(`/me/documents/${documentId}/reparse`, { method: "POST" }),
+    onSuccess: () => {
+      toast.success(t("toast.documentReparseQueued"));
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+    onError: () => toast.error(t("errors.reparseFailed")),
   });
 
   const importVacancies = useMutation({
@@ -238,6 +262,7 @@ export default function OnboardingPage() {
                 className="h-10 rounded-md border bg-background px-3 text-sm"
                 value={docKind}
                 onChange={(event) => setDocKind(event.target.value)}
+                aria-label={t("step2.kindLabel")}
               >
                 <option value="resume">{t("step2.kinds.resume")}</option>
                 <option value="cover_letter">{t("step2.kinds.cover_letter")}</option>
@@ -245,28 +270,66 @@ export default function OnboardingPage() {
               </select>
               <Input
                 type="file"
+                accept=".pdf,.docx"
+                aria-label={t("step2.fileLabel")}
                 onChange={(event) => {
                   const file = event.target.files?.[0];
                   if (file) {
+                    if (
+                      ![
+                        "application/pdf",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                      ].includes(file.type)
+                    ) {
+                      toast.error(t("errors.uploadUnsupported"));
+                      return;
+                    }
+                    if (file.size > 10 * 1024 * 1024) {
+                      toast.error(t("errors.uploadTooLarge"));
+                      return;
+                    }
                     uploadDoc.mutate({ kind: docKind, file });
                   }
                 }}
               />
             </div>
+            {uploadProgress !== null && (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">{t("step2.uploading", { progress: uploadProgress })}</div>
+                <Progress value={uploadProgress} />
+              </div>
+            )}
             <div className="grid gap-3">
               {documentsQuery.isLoading ? (
                 <Skeleton className="h-20" />
               ) : documentsQuery.data?.length ? (
                 documentsQuery.data.map((doc) => (
                   <Card key={doc.id} className="border-dashed">
-                    <CardContent className="flex items-center justify-between py-4">
-                      <div>
+                    <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+                      <div className="space-y-1">
                         <div className="font-medium">{t(`step2.kinds.${doc.kind}`)}</div>
                         <div className="text-xs text-muted-foreground">{t(`status.${doc.status}`)}</div>
+                        {doc.status === "failed" && (
+                          <p className="text-xs text-red-500">
+                            {t("step2.failedHint")}
+                          </p>
+                        )}
                       </div>
-                      <Badge variant={doc.status === "processed" ? "default" : "secondary"}>
-                        {t(`status.${doc.status}`)}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={doc.status === "processed" ? "default" : "secondary"}>
+                          {t(`status.${doc.status}`)}
+                        </Badge>
+                        {doc.status === "failed" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => reparseDoc.mutate(doc.id)}
+                            disabled={reparseDoc.isPending}
+                          >
+                            {t("step2.reparse")}
+                          </Button>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 ))
@@ -331,9 +394,9 @@ export default function OnboardingPage() {
               <div className="text-sm font-medium">{t("step4.latestMatches")}</div>
               {matchesQuery.isLoading ? (
                 <Skeleton className="h-20" />
-              ) : matchesQuery.data?.length ? (
+              ) : matches.length ? (
                 <div className="grid gap-2">
-                  {matchesQuery.data.slice(0, 4).map((match) => (
+                  {matches.slice(0, 4).map((match) => (
                     <div key={match.id} className="flex items-center justify-between rounded-md border p-3">
                       <div>
                         <div className="text-sm font-medium">

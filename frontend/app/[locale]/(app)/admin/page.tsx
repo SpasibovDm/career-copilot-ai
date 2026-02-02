@@ -131,6 +131,18 @@ export default function AdminPage() {
                   </span>
                 </div>
                 <div className="flex justify-between">
+                  <span>{t("health.parsingSuccess")}</span>
+                  <span className="font-medium">
+                    {formatNumber(locale, healthQuery.data.parsing_status_counts.processed ?? 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{t("health.parsingFailed")}</span>
+                  <span className="font-medium">
+                    {formatNumber(locale, healthQuery.data.parsing_status_counts.failed ?? 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
                   <span>{t("health.db")}</span>
                   <span className="font-medium">{t(`health.status.${healthQuery.data.db}`)}</span>
                 </div>

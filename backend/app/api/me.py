@@ -8,12 +8,13 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from fastapi.responses import PlainTextResponse, StreamingResponse
 from redis import Redis
 from rq import Queue, Retry
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.deps import get_current_user
+from app.core.errors import raise_app_error
 from app.models.models import (
     Application,
     ApplicationStatus,
@@ -28,6 +29,7 @@ from app.models.models import (
     Reminder,
     ReminderStatus,
     SharedLink,
+    SavedFilter,
     User,
     Vacancy,
 )
@@ -41,9 +43,12 @@ from app.schemas.schemas import (
     GeneratedPackageOut,
     MatchOut,
     MatchDetailOut,
+    PaginatedMatchesOut,
     NotificationOut,
     ProfileIn,
     ProfileOut,
+    SavedFilterCreate,
+    SavedFilterOut,
     ReminderCreate,
     ReminderOut,
     ReminderUpdate,
@@ -97,17 +102,21 @@ def upload_document(
     current_user: User = Depends(get_current_user),
 ):
     if not file.filename:
-        raise HTTPException(status_code=400, detail="File is required")
-    allowed_extensions = {".pdf", ".docx", ".txt"}
+        raise_app_error(400, "FILE_REQUIRED", "File is required")
+    allowed_extensions = {".pdf", ".docx"}
     filename_lower = file.filename.lower()
     if not any(filename_lower.endswith(ext) for ext in allowed_extensions):
-        raise HTTPException(status_code=400, detail="Unsupported file type")
+        raise_app_error(400, "UNSUPPORTED_FILE", "Unsupported file type")
     if file.content_type not in {
         "application/pdf",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "text/plain",
     }:
-        raise HTTPException(status_code=400, detail="Unsupported MIME type")
+        raise_app_error(400, "UNSUPPORTED_FILE", "Unsupported MIME type")
+    file.file.seek(0, 2)
+    size = file.file.tell()
+    file.file.seek(0)
+    if size > 10 * 1024 * 1024:
+        raise_app_error(413, "DOC_TOO_LARGE", "Document exceeds 10MB limit")
     s3_key = upload_file(file.file, file.filename)
     document = Document(user_id=current_user.id, kind=kind, s3_key=s3_key)
     db.add(document)
@@ -131,6 +140,34 @@ def list_documents(
     return db.query(Document).filter(Document.user_id == current_user.id).all()
 
 
+@router.post("/documents/{document_id}/reparse", response_model=DocumentOut)
+def reparse_document(
+    document_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    document = (
+        db.query(Document)
+        .filter(Document.user_id == current_user.id, Document.id == document_id)
+        .first()
+    )
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if document.status != DocumentStatus.failed:
+        raise_app_error(400, "DOCUMENT_NOT_FAILED", "Document is not in failed state")
+    document.status = DocumentStatus.pending
+    document.failure_reason = None
+    db.commit()
+    db.refresh(document)
+    redis_conn = Redis.from_url(settings.redis_url)
+    Queue("default", connection=redis_conn).enqueue(
+        tasks.parse_document,
+        str(document.id),
+        retry=Retry(max=3, interval=[10, 30, 60]),
+    )
+    return document
+
+
 @router.get("/documents/{document_id}", response_model=DocumentOut)
 def get_document(
     document_id: str,
@@ -147,11 +184,50 @@ def get_document(
     return doc
 
 
-@router.get("/matches", response_model=list[MatchOut])
+@router.get("/matches", response_model=PaginatedMatchesOut)
 def list_matches(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    q: str | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    return db.query(Match).filter(Match.user_id == current_user.id).all()
+    base_query = (
+        db.query(Match, Vacancy)
+        .join(Vacancy, Match.vacancy_id == Vacancy.id)
+        .filter(Match.user_id == current_user.id)
+    )
+    if q:
+        base_query = base_query.filter(
+            or_(
+                Vacancy.title.ilike(f"%{q}%"),
+                Vacancy.company.ilike(f"%{q}%"),
+                Vacancy.description.ilike(f"%{q}%"),
+            )
+        )
+    total = base_query.count()
+    results = (
+        base_query.order_by(Match.score.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+    items = [
+        MatchOut(
+            id=match.id,
+            vacancy_id=match.vacancy_id,
+            score=match.score,
+            explanation=match.explanation,
+            missing_skills=match.missing_skills,
+            matched_skills=match.matched_skills,
+            reasons=match.reasons,
+            vacancy_title=vacancy.title,
+            vacancy_company=vacancy.company,
+            vacancy_description=vacancy.description,
+        )
+        for match, vacancy in results
+    ]
+    return PaginatedMatchesOut(items=items, total=total, page=page, page_size=page_size)
 
 
 @router.get("/matches/{match_id}", response_model=MatchDetailOut)
@@ -315,6 +391,38 @@ def update_reminder(
     db.commit()
     db.refresh(reminder)
     return reminder
+
+
+@router.get("/filters", response_model=list[SavedFilterOut])
+def list_saved_filters(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    return (
+        db.query(SavedFilter)
+        .filter(SavedFilter.user_id == current_user.id)
+        .order_by(SavedFilter.created_at.desc())
+        .all()
+    )
+
+
+@router.post("/filters", response_model=SavedFilterOut)
+def create_saved_filter(
+    payload: SavedFilterCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    saved = SavedFilter(
+        user_id=current_user.id,
+        name=payload.name,
+        location=payload.location,
+        remote=payload.remote,
+        salary_min=payload.salary_min,
+        role_keywords=payload.role_keywords,
+    )
+    db.add(saved)
+    db.commit()
+    db.refresh(saved)
+    return saved
 
 
 @router.get("/notifications", response_model=list[NotificationOut])

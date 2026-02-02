@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.deps import require_admin
-from app.models.models import Document, User, VacancyImportRun, VacancySourceConfig
+from app.models.models import Document, DocumentStatus, User, VacancyImportRun, VacancySourceConfig
 from app.schemas.schemas import (
     AdminHealthOut,
     AdminMetricsOut,
@@ -75,6 +75,19 @@ def health(db: Session = Depends(get_db), _admin: User = Depends(require_admin))
     for worker in workers:
         if worker.last_heartbeat and (last_heartbeat is None or worker.last_heartbeat > last_heartbeat):
             last_heartbeat = worker.last_heartbeat
+    redis_heartbeat = redis_conn.get("worker:last_heartbeat")
+    if redis_heartbeat:
+        heartbeat_time = datetime.fromisoformat(redis_heartbeat.decode())
+        if last_heartbeat is None or heartbeat_time > last_heartbeat:
+            last_heartbeat = heartbeat_time
+
+    parsing_counts = {status.value: 0 for status in DocumentStatus}
+    for status, count in (
+        db.query(Document.status, func.count(Document.id))
+        .group_by(Document.status)
+        .all()
+    ):
+        parsing_counts[status.value] = int(count)
 
     db_status = "ok"
     redis_status = "ok"
@@ -108,6 +121,7 @@ def health(db: Session = Depends(get_db), _admin: User = Depends(require_admin))
         queue_size=queue.count,
         workers=len(workers),
         last_worker_heartbeat=last_heartbeat,
+        parsing_status_counts=parsing_counts,
         db=db_status,
         redis=redis_status,
         minio=minio_status,

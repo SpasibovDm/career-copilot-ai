@@ -48,6 +48,9 @@ export interface Match {
   missing_skills?: string[] | null;
   matched_skills?: string[] | null;
   reasons?: string[] | null;
+  vacancy_title?: string | null;
+  vacancy_company?: string | null;
+  vacancy_description?: string | null;
 }
 
 export interface MatchDetail extends Match {
@@ -120,9 +123,17 @@ export interface AdminHealth {
   queue_size: number;
   workers: number;
   last_worker_heartbeat?: string | null;
+  parsing_status_counts: Record<string, number>;
   db: string;
   redis: string;
   minio: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  page_size: number;
 }
 
 export interface AdminMetrics {
@@ -174,6 +185,16 @@ export interface Notification {
   title: string;
   body?: string | null;
   is_read: boolean;
+  created_at: string;
+}
+
+export interface SavedFilter {
+  id: string;
+  name: string;
+  location?: string | null;
+  remote?: boolean | null;
+  salary_min?: number | null;
+  role_keywords?: string[] | null;
   created_at: string;
 }
 

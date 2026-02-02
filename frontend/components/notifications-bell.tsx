@@ -37,9 +37,11 @@ export function NotificationsBell() {
   return (
     <div className="relative">
       <button
-        className="relative inline-flex items-center justify-center rounded-md border px-2 py-2"
+        className="relative inline-flex items-center justify-center rounded-md border px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         onClick={() => setOpen((prev) => !prev)}
         aria-label={t("title")}
+        aria-expanded={open}
+        aria-haspopup="dialog"
       >
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
@@ -49,7 +51,11 @@ export function NotificationsBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 rounded-lg border bg-card p-3 shadow-lg">
+        <div
+          className="absolute right-0 z-50 mt-2 w-80 rounded-lg border bg-card p-3 shadow-lg"
+          role="dialog"
+          aria-label={t("title")}
+        >
           <div className="flex items-center justify-between">
             <div className="text-sm font-semibold">{t("title")}</div>
             <Button
@@ -78,7 +84,8 @@ export function NotificationsBell() {
                     {!item.is_read && (
                       <button
                         onClick={() => markRead.mutate(item.id)}
-                        className="text-xs text-primary"
+                        className="text-xs text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        aria-label={t("markRead")}
                       >
                         <Check className="h-3 w-3" />
                       </button>

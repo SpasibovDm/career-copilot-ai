@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.models import Vacancy, VacancySource
-from app.schemas.schemas import VacancyOut
+from app.schemas.schemas import PaginatedVacanciesOut, VacancyOut
 
 router = APIRouter(prefix="/vacancies", tags=["vacancies"])
 
@@ -49,24 +49,39 @@ def import_csv(
     return created
 
 
-@router.get("", response_model=list[VacancyOut])
+@router.get("", response_model=PaginatedVacanciesOut)
 def list_vacancies(
     q: str | None = Query(default=None),
     location: str | None = Query(default=None),
     remote: bool | None = Query(default=None),
     salary_min: float | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     query = db.query(Vacancy)
     if q:
-        query = query.filter(or_(Vacancy.title.ilike(f"%{q}%"), Vacancy.description.ilike(f"%{q}%")))
+        query = query.filter(
+            or_(
+                Vacancy.title.ilike(f"%{q}%"),
+                Vacancy.company.ilike(f"%{q}%"),
+                Vacancy.description.ilike(f"%{q}%"),
+            )
+        )
     if location:
         query = query.filter(Vacancy.location.ilike(f"%{location}%"))
     if remote is not None:
         query = query.filter(Vacancy.remote == remote)
     if salary_min is not None:
         query = query.filter(Vacancy.salary_min >= salary_min)
-    return query.all()
+    total = query.count()
+    items = (
+        query.order_by(Vacancy.title.asc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+    return PaginatedVacanciesOut(items=items, total=total, page=page, page_size=page_size)
 
 
 @router.get("/{vacancy_id}", response_model=VacancyOut)

@@ -84,6 +84,7 @@ class User(Base):
     applications = relationship("Application", back_populates="user")
     notifications = relationship("Notification")
     reminders = relationship("Reminder")
+    saved_filters = relationship("SavedFilter", back_populates="user")
 
 
 class Profile(Base):
@@ -238,6 +239,21 @@ class Reminder(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     application = relationship("Application", back_populates="reminders")
+
+
+class SavedFilter(Base):
+    __tablename__ = "saved_filters"
+
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    location = Column(String(255), nullable=True)
+    remote = Column(Boolean, nullable=True)
+    salary_min = Column(Float, nullable=True)
+    role_keywords = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    user = relationship("User", back_populates="saved_filters")
 
 
 class ApplicationAttachment(Base):

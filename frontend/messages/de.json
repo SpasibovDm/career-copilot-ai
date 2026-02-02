@@ -78,7 +78,10 @@
       "footerPrompt": "Neu hier?",
       "footerLink": "Konto erstellen",
       "toastSuccess": "Willkommen zurück!",
-      "toastError": "Anmeldung fehlgeschlagen. Prüfe deine Zugangsdaten."
+      "toastError": "Anmeldung fehlgeschlagen. Prüfe deine Zugangsdaten.",
+      "demoButton": "Demo-Konto verwenden",
+      "demoSuccess": "Mit Demo-Konto angemeldet",
+      "demoError": "Anmeldung mit Demo-Konto nicht möglich"
     },
     "register": {
       "title": "Konto erstellen",
@@ -160,7 +163,19 @@
       "search": "Suchbegriffe",
       "location": "Ort",
       "remote": "Remote (true/false)",
-      "salaryMin": "Mindestgehalt"
+      "salaryMin": "Mindestgehalt",
+      "remoteOptions": {
+        "all": "Alle",
+        "remote": "Remote",
+        "onsite": "Vor Ort"
+      },
+      "presetName": "Preset-Name",
+      "save": "Preset speichern",
+      "saving": "Speichern...",
+      "saved": "Preset gespeichert",
+      "saveError": "Preset kann nicht gespeichert werden",
+      "applyPreset": "Preset {name} anwenden",
+      "emptyPresets": "Noch keine Presets gespeichert."
     },
     "list": {
       "title": "Stellenliste",
@@ -171,7 +186,8 @@
         "salary": "Gehalt",
         "details": "Details"
       },
-      "empty": "Keine Stellen gefunden."
+      "empty": "Keine Stellen gefunden.",
+      "emptyCta": "CSV importieren"
     },
     "pagination": {
       "page": "Seite {page} von {total}",
@@ -229,7 +245,9 @@
       "generating": "Generiere...",
       "empty": "Noch keine Matches. Starte das Onboarding, um zu generieren.",
       "viewDetails": "Details ansehen",
-      "loadingDetails": "Details werden geladen..."
+      "loadingDetails": "Details werden geladen...",
+      "vacancyLabel": "Stelle",
+      "emptyCta": "Matching starten"
     },
     "pagination": {
       "page": "Seite {page} von {total}",
@@ -244,7 +262,8 @@
       "skillGap": "Skill-Gap-Plan",
       "learnLink": "Lernen"
     },
-    "toastDetailError": "Match-Details konnten nicht geladen werden"
+    "toastDetailError": "Match-Details konnten nicht geladen werden",
+    "searchPlaceholder": "Matches durchsuchen"
   },
   "documents": {
     "title": "Dokumente",
@@ -262,7 +281,17 @@
     "s3Key": "S3-Schlüssel: {key}",
     "failure": "Verarbeitung fehlgeschlagen: {reason}",
     "failureFallback": "Verarbeitung fehlgeschlagen",
-    "empty": "Noch keine Dokumente hochgeladen."
+    "empty": "Noch keine Dokumente hochgeladen.",
+    "reparse": "Parsing erneut starten",
+    "reparseQueued": "Parsing erneut in Warteschlange",
+    "reparseFailed": "Parsing kann nicht erneut gestartet werden",
+    "preview": {
+      "skills": "Fähigkeiten",
+      "experience": "Erfahrung",
+      "education": "Ausbildung",
+      "empty": "Noch keine Einträge erkannt"
+    },
+    "emptyCta": "Dokument hochladen"
   },
   "onboarding": {
     "title": "Onboarding-Assistent",
@@ -302,7 +331,12 @@
         "other": "Sonstiges"
       },
       "empty": "Noch keine Dokumente hochgeladen.",
-      "continue": "Weiter"
+      "continue": "Weiter",
+      "kindLabel": "Dokumenttyp",
+      "fileLabel": "Dokument hochladen",
+      "uploading": "Wird hochgeladen... {progress}%",
+      "failedHint": "Parsing fehlgeschlagen. Bei Bedarf erneut starten.",
+      "reparse": "Parsing erneut starten"
     },
     "step3": {
       "title": "Schritt 3: Stellen per CSV importieren",
@@ -324,14 +358,18 @@
       "profileUpdated": "Profil aktualisiert",
       "documentUploaded": "Dokument hochgeladen",
       "vacanciesImported": "Stellen importiert",
-      "matchingQueued": "Matching eingereiht"
+      "matchingQueued": "Matching eingereiht",
+      "documentReparseQueued": "Parsing erneut in Warteschlange"
     },
     "errors": {
       "invalidLanguages": "Ungültiges JSON für Sprachen",
       "profileSave": "Profil konnte nicht gespeichert werden",
       "uploadFailed": "Upload fehlgeschlagen",
       "importFailed": "Import fehlgeschlagen",
-      "matchingFailed": "Matching konnte nicht gestartet werden"
+      "matchingFailed": "Matching konnte nicht gestartet werden",
+      "uploadTooLarge": "Datei überschreitet 10 MB",
+      "uploadUnsupported": "Nur PDF- oder DOCX-Dateien werden unterstützt",
+      "reparseFailed": "Parsing kann nicht erneut gestartet werden"
     }
   },
   "packages": {
@@ -401,7 +439,9 @@
         "error": "Fehler"
       },
       "never": "Noch kein Heartbeat",
-      "error": "Systemstatus konnte nicht geladen werden."
+      "error": "Systemstatus konnte nicht geladen werden.",
+      "parsingSuccess": "Parsing erfolgreich",
+      "parsingFailed": "Parsing fehlgeschlagen"
     },
     "queue": {
       "title": "Queue-Übersicht",
@@ -472,13 +512,15 @@
     "title": "Benachrichtigungen",
     "markAll": "Alle als gelesen markieren",
     "loading": "Benachrichtigungen werden geladen...",
-    "empty": "Noch keine Benachrichtigungen."
+    "empty": "Noch keine Benachrichtigungen.",
+    "markRead": "Als gelesen markieren"
   },
   "errors": {
     "title": "Etwas ist schiefgelaufen",
     "subtitle": "Bitte versuche es später erneut.",
     "retry": "Erneut versuchen",
     "notFoundTitle": "Seite nicht gefunden",
-    "notFoundSubtitle": "Die angeforderte Seite ist nicht verfügbar."
+    "notFoundSubtitle": "Die angeforderte Seite ist nicht verfügbar.",
+    "backHome": "Zur Übersicht"
   }
 }

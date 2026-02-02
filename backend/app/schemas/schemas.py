@@ -101,6 +101,9 @@ class MatchOut(BaseModel):
     missing_skills: Optional[List[str]] = None
     matched_skills: Optional[List[str]] = None
     reasons: Optional[List[str]] = None
+    vacancy_title: Optional[str] = None
+    vacancy_company: Optional[str] = None
+    vacancy_description: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -109,6 +112,20 @@ class MatchOut(BaseModel):
 class MatchDetailOut(MatchOut):
     tokens: Optional[List[str]] = None
     skill_gap_plan: Optional[List[Dict[str, str]]] = None
+
+
+class PaginatedVacanciesOut(BaseModel):
+    items: List[VacancyOut]
+    total: int
+    page: int
+    page_size: int
+
+
+class PaginatedMatchesOut(BaseModel):
+    items: List[MatchOut]
+    total: int
+    page: int
+    page_size: int
 
 
 class GeneratedPackageOut(BaseModel):
@@ -216,6 +233,7 @@ class AdminHealthOut(BaseModel):
     queue_size: int
     workers: int
     last_worker_heartbeat: Optional[datetime] = None
+    parsing_status_counts: Dict[str, int]
     db: str
     redis: str
     minio: str
@@ -251,6 +269,22 @@ class VacancyImportRunOut(BaseModel):
     updated_count: float
     status: str
     error: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class SavedFilterCreate(BaseModel):
+    name: str
+    location: Optional[str] = None
+    remote: Optional[bool] = None
+    salary_min: Optional[float] = None
+    role_keywords: Optional[List[str]] = None
+
+
+class SavedFilterOut(SavedFilterCreate):
+    id: uuid.UUID
+    created_at: datetime
 
     class Config:
         orm_mode = True
