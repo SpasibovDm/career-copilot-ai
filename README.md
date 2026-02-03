@@ -5,6 +5,9 @@ This repository contains the MVP backend for Career Copilot AI built with FastAP
 
 > **Migration reset note:** For the MVP we reset migrations and ship a single initial migration. To reset locally, drop the database and re-run `alembic upgrade head`.
 
+## Project
+Career Copilot AI is a job-search copilot that helps candidates organize their profile and documents, import and match vacancies, and generate tailored application packages. The repo includes a FastAPI backend with queue workers for matching and generation, a Next.js frontend portal with onboarding and dashboards, and Docker-based infrastructure for local dev and production (PostgreSQL, Redis, MinIO, and Caddy).
+
 ## Local Development
 
 ```bash
