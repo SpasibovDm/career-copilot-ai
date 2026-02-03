@@ -158,6 +158,28 @@
   "vacancies": {
     "title": "Stellen",
     "subtitle": "Suche und filtere deine importierten Rollen.",
+    "create": {
+      "title": "Stelle hinzufügen",
+      "fields": {
+        "title": "Rollentitel",
+        "company": "Unternehmen",
+        "location": "Ort",
+        "remote": "Remote",
+        "salaryMin": "Mindestgehalt",
+        "salaryMax": "Höchstgehalt",
+        "currency": "Währung",
+        "url": "Job-URL",
+        "description": "Beschreibung"
+      },
+      "remoteOptions": {
+        "remote": "Remote",
+        "onsite": "Vor Ort"
+      },
+      "submit": "Stelle erstellen",
+      "creating": "Erstellen...",
+      "toastSuccess": "Stelle erstellt",
+      "toastError": "Stelle konnte nicht erstellt werden"
+    },
     "filters": {
       "title": "Filter",
       "search": "Suchbegriffe",
@@ -202,6 +224,32 @@
     "salaryLabel": "Gehalt:",
     "sourceLabel": "Quelle:",
     "viewPosting": "Stellenanzeige öffnen",
+    "edit": {
+      "title": "Stelle bearbeiten",
+      "fields": {
+        "title": "Rollentitel",
+        "company": "Unternehmen",
+        "location": "Ort",
+        "remote": "Remote",
+        "salaryMin": "Mindestgehalt",
+        "salaryMax": "Höchstgehalt",
+        "currency": "Währung",
+        "url": "Job-URL",
+        "description": "Beschreibung"
+      },
+      "remoteOptions": {
+        "remote": "Remote",
+        "onsite": "Vor Ort"
+      },
+      "save": "Änderungen speichern",
+      "saving": "Speichern...",
+      "saved": "Stelle aktualisiert",
+      "error": "Stelle konnte nicht aktualisiert werden",
+      "delete": "Stelle löschen",
+      "deleting": "Wird gelöscht...",
+      "deleted": "Stelle gelöscht",
+      "deleteError": "Stelle konnte nicht gelöscht werden"
+    },
     "sources": {
       "manual": "Manuell",
       "csv": "CSV-Import",

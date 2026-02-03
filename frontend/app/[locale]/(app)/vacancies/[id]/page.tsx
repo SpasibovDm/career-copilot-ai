@@ -7,7 +7,7 @@ import { Application, ApplicationStatus, Vacancy } from "@/types/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "@/lib/navigation";
+import { Link, useRouter } from "@/lib/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +27,18 @@ export default function VacancyDetailPage() {
   const [notes, setNotes] = useState("");
   const [interviewNotes, setInterviewNotes] = useState("");
   const [status, setStatus] = useState<ApplicationStatus>("saved");
+  const [draft, setDraft] = useState({
+    title: "",
+    company: "",
+    location: "",
+    remote: false,
+    salary_min: "",
+    salary_max: "",
+    currency: "USD",
+    url: "",
+    description: "",
+  });
+  const router = useRouter();
 
   const query = useQuery({
     queryKey: ["vacancy", vacancyId],
@@ -69,22 +81,41 @@ export default function VacancyDetailPage() {
     onError: () => toast.error(t("reminders.error")),
   });
 
-  if (query.isLoading) {
-    return <Skeleton className="h-64" />;
-  }
+  const updateVacancy = useMutation({
+    mutationFn: () =>
+      apiFetch<Vacancy>(`/vacancies/${vacancyId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          title: draft.title,
+          company: draft.company || undefined,
+          location: draft.location || undefined,
+          remote: draft.remote,
+          salary_min: draft.salary_min ? Number(draft.salary_min) : undefined,
+          salary_max: draft.salary_max ? Number(draft.salary_max) : undefined,
+          currency: draft.currency || undefined,
+          url: draft.url || undefined,
+          description: draft.description || undefined,
+        }),
+      }),
+    onSuccess: () => {
+      toast.success(t("edit.saved"));
+      queryClient.invalidateQueries({ queryKey: ["vacancy", vacancyId] });
+    },
+    onError: () => toast.error(t("edit.error")),
+  });
 
-  if (!query.data) {
-    return <div className="text-sm text-muted-foreground">{t("notFound")}</div>;
-  }
+  const deleteVacancy = useMutation({
+    mutationFn: () => apiFetch(`/vacancies/${vacancyId}`, { method: "DELETE" }),
+    onSuccess: () => {
+      toast.success(t("edit.deleted"));
+      router.push("/vacancies");
+      queryClient.invalidateQueries({ queryKey: ["vacancies"] });
+    },
+    onError: () => toast.error(t("edit.deleteError")),
+  });
 
-  const vacancy = query.data;
   const existingApplication = applicationsQuery.data?.find((app) => app.vacancy_id === vacancyId);
-  const currentStatus = existingApplication?.status ?? status;
-  const currency = vacancy.currency;
-  const formatSalaryValue = (value?: number | null) => {
-    if (!value) return common("notAvailable");
-    return currency ? formatCurrency(locale, value, currency) : formatNumber(locale, value);
-  };
+  const vacancy = query.data;
 
   useEffect(() => {
     if (existingApplication) {
@@ -93,6 +124,37 @@ export default function VacancyDetailPage() {
       setInterviewNotes(existingApplication.interview_notes ?? "");
     }
   }, [existingApplication]);
+
+  useEffect(() => {
+    if (vacancy) {
+      setDraft({
+        title: vacancy.title,
+        company: vacancy.company ?? "",
+        location: vacancy.location ?? "",
+        remote: vacancy.remote,
+        salary_min: vacancy.salary_min ? String(vacancy.salary_min) : "",
+        salary_max: vacancy.salary_max ? String(vacancy.salary_max) : "",
+        currency: vacancy.currency ?? "USD",
+        url: vacancy.url ?? "",
+        description: vacancy.description ?? "",
+      });
+    }
+  }, [vacancy]);
+
+  if (query.isLoading) {
+    return <Skeleton className="h-64" />;
+  }
+
+  if (!vacancy) {
+    return <div className="text-sm text-muted-foreground">{t("notFound")}</div>;
+  }
+
+  const currentStatus = existingApplication?.status ?? status;
+  const currency = vacancy.currency;
+  const formatSalaryValue = (value?: number | null) => {
+    if (!value) return common("notAvailable");
+    return currency ? formatCurrency(locale, value, currency) : formatNumber(locale, value);
+  };
 
   return (
     <div className="space-y-4">
@@ -121,6 +183,78 @@ export default function VacancyDetailPage() {
           {vacancy.description && (
             <div className="rounded-md border p-4 text-sm text-muted-foreground">{vacancy.description}</div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("edit.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-2">
+          <Input
+            value={draft.title}
+            onChange={(event) => setDraft({ ...draft, title: event.target.value })}
+            aria-label={t("edit.fields.title")}
+          />
+          <Input
+            value={draft.company}
+            onChange={(event) => setDraft({ ...draft, company: event.target.value })}
+            aria-label={t("edit.fields.company")}
+          />
+          <Input
+            value={draft.location}
+            onChange={(event) => setDraft({ ...draft, location: event.target.value })}
+            aria-label={t("edit.fields.location")}
+          />
+          <select
+            className="h-9 rounded-md border bg-background px-3 text-sm"
+            value={draft.remote ? "true" : "false"}
+            onChange={(event) => setDraft({ ...draft, remote: event.target.value === "true" })}
+            aria-label={t("edit.fields.remote")}
+          >
+            <option value="false">{t("edit.remoteOptions.onsite")}</option>
+            <option value="true">{t("edit.remoteOptions.remote")}</option>
+          </select>
+          <Input
+            type="number"
+            value={draft.salary_min}
+            onChange={(event) => setDraft({ ...draft, salary_min: event.target.value })}
+            aria-label={t("edit.fields.salaryMin")}
+          />
+          <Input
+            type="number"
+            value={draft.salary_max}
+            onChange={(event) => setDraft({ ...draft, salary_max: event.target.value })}
+            aria-label={t("edit.fields.salaryMax")}
+          />
+          <Input
+            value={draft.currency}
+            onChange={(event) => setDraft({ ...draft, currency: event.target.value })}
+            aria-label={t("edit.fields.currency")}
+          />
+          <Input
+            value={draft.url}
+            onChange={(event) => setDraft({ ...draft, url: event.target.value })}
+            aria-label={t("edit.fields.url")}
+          />
+          <Textarea
+            className="md:col-span-2"
+            value={draft.description}
+            onChange={(event) => setDraft({ ...draft, description: event.target.value })}
+            aria-label={t("edit.fields.description")}
+          />
+          <div className="md:col-span-2 flex flex-wrap gap-2">
+            <Button onClick={() => updateVacancy.mutate()} disabled={updateVacancy.isPending}>
+              {updateVacancy.isPending ? t("edit.saving") : t("edit.save")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => deleteVacancy.mutate()}
+              disabled={deleteVacancy.isPending}
+            >
+              {deleteVacancy.isPending ? t("edit.deleting") : t("edit.delete")}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

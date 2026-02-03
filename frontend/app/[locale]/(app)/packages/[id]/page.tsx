@@ -18,7 +18,7 @@ export default function PackagePage() {
   const packageId = params?.id as string;
   const [template, setTemplate] = useState<"minimal" | "modern" | "classic">("modern");
   const t = useTranslations("packages");
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "/api";
   const token = useAuthStore.getState().accessToken;
 
   const downloadText = async (section: "cv" | "cover" | "hr", filename: string) => {

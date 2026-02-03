@@ -6,6 +6,7 @@ import { apiFetch } from "@/lib/api";
 import { PaginatedResponse, SavedFilter, Vacancy } from "@/types/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,6 +30,17 @@ export default function VacanciesPage() {
   const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(1);
   const [presetName, setPresetName] = useState("");
+  const [draft, setDraft] = useState({
+    title: "",
+    company: "",
+    location: "",
+    remote: "false",
+    salary_min: "",
+    salary_max: "",
+    currency: "USD",
+    url: "",
+    description: "",
+  });
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -81,6 +93,40 @@ export default function VacanciesPage() {
     onError: () => toast.error(t("filters.saveError")),
   });
 
+  const createVacancy = useMutation({
+    mutationFn: () =>
+      apiFetch<Vacancy>("/vacancies", {
+        method: "POST",
+        body: JSON.stringify({
+          title: draft.title,
+          company: draft.company || undefined,
+          location: draft.location || undefined,
+          remote: draft.remote === "true",
+          salary_min: draft.salary_min ? Number(draft.salary_min) : undefined,
+          salary_max: draft.salary_max ? Number(draft.salary_max) : undefined,
+          currency: draft.currency || undefined,
+          url: draft.url || undefined,
+          description: draft.description || undefined,
+        }),
+      }),
+    onSuccess: () => {
+      setDraft({
+        title: "",
+        company: "",
+        location: "",
+        remote: "false",
+        salary_min: "",
+        salary_max: "",
+        currency: "USD",
+        url: "",
+        description: "",
+      });
+      queryClient.invalidateQueries({ queryKey: ["vacancies"] });
+      toast.success(t("create.toastSuccess"));
+    },
+    onError: () => toast.error(t("create.toastError")),
+  });
+
   const totalPages = useMemo(() => {
     if (!query.data) return 1;
     return Math.max(1, Math.ceil(query.data.total / query.data.page_size));
@@ -124,6 +170,82 @@ export default function VacanciesPage() {
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("create.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-2">
+          <Input
+            placeholder={t("create.fields.title")}
+            value={draft.title}
+            onChange={(event) => setDraft({ ...draft, title: event.target.value })}
+            aria-label={t("create.fields.title")}
+          />
+          <Input
+            placeholder={t("create.fields.company")}
+            value={draft.company}
+            onChange={(event) => setDraft({ ...draft, company: event.target.value })}
+            aria-label={t("create.fields.company")}
+          />
+          <Input
+            placeholder={t("create.fields.location")}
+            value={draft.location}
+            onChange={(event) => setDraft({ ...draft, location: event.target.value })}
+            aria-label={t("create.fields.location")}
+          />
+          <select
+            className="h-10 rounded-md border bg-background px-3 text-sm"
+            value={draft.remote}
+            onChange={(event) => setDraft({ ...draft, remote: event.target.value })}
+            aria-label={t("create.fields.remote")}
+          >
+            <option value="false">{t("create.remoteOptions.onsite")}</option>
+            <option value="true">{t("create.remoteOptions.remote")}</option>
+          </select>
+          <Input
+            type="number"
+            placeholder={t("create.fields.salaryMin")}
+            value={draft.salary_min}
+            onChange={(event) => setDraft({ ...draft, salary_min: event.target.value })}
+            aria-label={t("create.fields.salaryMin")}
+          />
+          <Input
+            type="number"
+            placeholder={t("create.fields.salaryMax")}
+            value={draft.salary_max}
+            onChange={(event) => setDraft({ ...draft, salary_max: event.target.value })}
+            aria-label={t("create.fields.salaryMax")}
+          />
+          <Input
+            placeholder={t("create.fields.currency")}
+            value={draft.currency}
+            onChange={(event) => setDraft({ ...draft, currency: event.target.value })}
+            aria-label={t("create.fields.currency")}
+          />
+          <Input
+            placeholder={t("create.fields.url")}
+            value={draft.url}
+            onChange={(event) => setDraft({ ...draft, url: event.target.value })}
+            aria-label={t("create.fields.url")}
+          />
+          <Textarea
+            className="md:col-span-2"
+            placeholder={t("create.fields.description")}
+            value={draft.description}
+            onChange={(event) => setDraft({ ...draft, description: event.target.value })}
+            aria-label={t("create.fields.description")}
+          />
+          <div className="md:col-span-2">
+            <Button
+              onClick={() => createVacancy.mutate()}
+              disabled={!draft.title || createVacancy.isPending}
+            >
+              {createVacancy.isPending ? t("create.creating") : t("create.submit")}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

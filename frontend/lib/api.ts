@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/lib/auth-store";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 const LOCALE_STORAGE_KEY = "locale";
 
 export function getPreferredLocale() {

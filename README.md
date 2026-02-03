@@ -26,7 +26,8 @@ docker compose up -d --build
 ```
 
 Then open `http://localhost:3000` for the Career Copilot Portal. The frontend reads
-`NEXT_PUBLIC_API_URL` (default `http://localhost:8000`) for API calls.
+`NEXT_PUBLIC_API_URL` (default `/api`) for API calls. Point this at `http://localhost:8000`
+if you want to use the FastAPI backend instead of the in-app JSON API.
 
 ## I18n
 The frontend uses `next-intl` with the App Router. Locale prefixes are required (`/[locale]`), and the middleware redirects `/` to the default locale while persisting the selection in the `NEXT_LOCALE` cookie. Translation messages live in `frontend/messages` (e.g., `en.json`) and are loaded via `frontend/i18n/request.ts`.

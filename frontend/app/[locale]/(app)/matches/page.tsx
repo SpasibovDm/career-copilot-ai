@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 import { formatNumber } from "@/lib/formatters";
 import { Input } from "@/components/ui/input";
-import { Link } from "@/lib/navigation";
+import { Link, useRouter } from "@/lib/navigation";
 
 export default function MatchesPage() {
   const t = useTranslations("matches");
@@ -23,6 +23,7 @@ export default function MatchesPage() {
   const [searchInput, setSearchInput] = useState("");
   const [queryValue, setQueryValue] = useState("");
   const [expandedMatch, setExpandedMatch] = useState<MatchDetail | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const timeout = setTimeout(() => setQueryValue(searchInput), 300);
@@ -47,11 +48,16 @@ export default function MatchesPage() {
 
   const generateMutation = useMutation({
     mutationFn: (vacancyId: string) =>
-      apiFetch(`/generation/${vacancyId}`, {
+      apiFetch<{ package_id: string }>(`/generation/${vacancyId}`, {
         method: "POST",
         body: JSON.stringify({ language: locale }),
       }),
-    onSuccess: () => toast.success(t("toastSuccess")),
+    onSuccess: (data) => {
+      toast.success(t("toastSuccess"));
+      if (data?.package_id) {
+        router.push(`/packages/${data.package_id}`);
+      }
+    },
     onError: () => toast.error(t("toastError")),
   });
 

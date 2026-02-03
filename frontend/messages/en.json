@@ -158,6 +158,28 @@
   "vacancies": {
     "title": "Vacancies",
     "subtitle": "Search and filter your imported roles.",
+    "create": {
+      "title": "Add a vacancy",
+      "fields": {
+        "title": "Role title",
+        "company": "Company",
+        "location": "Location",
+        "remote": "Remote",
+        "salaryMin": "Salary min",
+        "salaryMax": "Salary max",
+        "currency": "Currency",
+        "url": "Job URL",
+        "description": "Description"
+      },
+      "remoteOptions": {
+        "remote": "Remote",
+        "onsite": "On-site"
+      },
+      "submit": "Create vacancy",
+      "creating": "Creating...",
+      "toastSuccess": "Vacancy created",
+      "toastError": "Unable to create vacancy"
+    },
     "filters": {
       "title": "Filters",
       "search": "Search keywords",
@@ -202,6 +224,32 @@
     "salaryLabel": "Salary:",
     "sourceLabel": "Source:",
     "viewPosting": "View posting",
+    "edit": {
+      "title": "Edit vacancy",
+      "fields": {
+        "title": "Role title",
+        "company": "Company",
+        "location": "Location",
+        "remote": "Remote",
+        "salaryMin": "Salary min",
+        "salaryMax": "Salary max",
+        "currency": "Currency",
+        "url": "Job URL",
+        "description": "Description"
+      },
+      "remoteOptions": {
+        "remote": "Remote",
+        "onsite": "On-site"
+      },
+      "save": "Save changes",
+      "saving": "Saving...",
+      "saved": "Vacancy updated",
+      "error": "Unable to update vacancy",
+      "delete": "Delete vacancy",
+      "deleting": "Deleting...",
+      "deleted": "Vacancy deleted",
+      "deleteError": "Unable to delete vacancy"
+    },
     "sources": {
       "manual": "Manual",
       "csv": "CSV import",
