@@ -10,7 +10,7 @@ This repository contains the MVP backend for Career Copilot AI built with FastAP
 ```bash
 cp .env.example .env
 cd infra
-Docker compose up -d --build
+docker compose up -d --build
 ```
 
 The API will be available at `http://localhost:8000`.
@@ -24,6 +24,15 @@ docker compose up -d --build
 
 Then open `http://localhost:3000` for the Career Copilot Portal. The frontend reads
 `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`) for API calls.
+
+## Production Deployment
+
+Production assets live in `infra/docker-compose.prod.yml` with a Caddy reverse proxy and HTTPS. See
+`docs/DEPLOY_VPS.md` for a step-by-step VPS deployment guide and required environment variables.
+
+### Health
+
+- `GET /health` reports database, Redis, and MinIO connectivity.
 
 ### UI Flow (happy path)
 1. Register or login from `/register` or `/login`.
